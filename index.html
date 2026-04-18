@@ -106,8 +106,8 @@
   </div>
 </div>
 
-<button class="btn btn-primary" id="run-btn" onclick="runExtraction()" disabled>▶ Lancer l'extraction</button>
-<button class="btn btn-ghost"   id="diag-btn" onclick="runDiag()"       disabled>🔍 Diagnostiquer ZGDU</button>
+<button class="btn btn-primary" id="run-btn" onclick="runExtraction()">▶ Lancer l'extraction</button>
+<button class="btn btn-ghost"   id="diag-btn" onclick="runDiag()">🔍 Diagnostiquer ZGDU</button>
 
 <div class="progress-box" id="progress-box">
   <div class="progress-label" id="progress-label">…</div>
@@ -153,10 +153,6 @@ let currentUser = 'inconnu';
 // ── GRIST READY ──────────────────────────────────────────────────────────────
 // On attend que Grist confirme l'accès avant d'activer les boutons
 grist.ready({ requiredAccess: 'full' });
-
-// Activer les boutons immédiatement — pas besoin d'attendre un événement Grist
-document.getElementById('run-btn').disabled  = false;
-document.getElementById('diag-btn').disabled = false;
 
 // Tente getUserProfile() en silencieux pour pré-remplir l'opérateur
 (async () => {
