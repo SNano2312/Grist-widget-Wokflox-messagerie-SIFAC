@@ -97,7 +97,13 @@
   <div class="info-row"><span class="info-label">Mandant</span><span class="badge badge-blue">510</span></div>
   <div class="info-row"><span class="info-label">Profil</span><span class="badge badge-blue">GESTIONNAIRE</span></div>
   <div class="info-row"><span class="info-label">Périm. financier</span><span class="badge badge-blue">5010</span></div>
-  <div class="info-row"><span class="info-label">Opérateur</span><span id="username-display" style="font-size:12px;color:var(--text2)">chargement…</span></div>
+  <div class="info-row">
+    <span class="info-label">Opérateur</span>
+    <input id="username-input" type="text" placeholder="Votre identifiant (ex: FMARTIN)"
+      style="flex:1;padding:5px 9px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg);color:var(--text);max-width:260px"
+      oninput="currentUser=this.value.trim();document.getElementById('username-display').textContent=this.value.trim()||'—'"
+    />
+  </div>
 </div>
 
 <button class="btn btn-primary" id="run-btn" onclick="runExtraction()" disabled>▶ Lancer l'extraction</button>
@@ -167,23 +173,17 @@ async function onGristReady() {
   document.getElementById('run-btn').disabled  = false;
   document.getElementById('diag-btn').disabled = false;
 
-  // Récupérer le nom de l'utilisateur connecté à Grist
-  // grist.getUserProfile() est l'API officielle pour ça
+  // Tente getUserProfile() en silencieux ; si ça marche on pré-remplit le champ
   try {
     const profile = await grist.getUserProfile();
-    currentUser = profile.email || profile.name || profile.loginEmail || 'inconnu';
-  } catch(e) {
-    try {
-      // Fallback : décode le JWT de l'access token
-      const token = await grist.getAccessToken({ readOnly: true });
-      const b64 = token.token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
-      const payload = JSON.parse(atob(b64));
-      currentUser = payload.email || payload.name || payload.sub || 'inconnu';
-    } catch(e2) {
-      currentUser = 'inconnu';
+    const val = profile.email || profile.name || profile.loginEmail || '';
+    if (val) {
+      currentUser = val;
+      document.getElementById('username-input').value = val;
     }
+  } catch(e) {
+    // API non disponible — l'utilisateur saisit manuellement
   }
-  document.getElementById('username-display').textContent = currentUser;
 }
 
 // ── DIAGNOSTIC ───────────────────────────────────────────────────────────────
@@ -311,6 +311,13 @@ async function runDiag() {
 
 // ── EXTRACTION ───────────────────────────────────────────────────────────────
 async function runExtraction() {
+  // Vérifier que l'opérateur est renseigné
+  currentUser = document.getElementById('username-input').value.trim();
+  if (!currentUser) {
+    showResult('error', 'Opérateur manquant', 'Veuillez saisir votre identifiant dans le champ Opérateur avant de lancer l'extraction.');
+    return;
+  }
+
   const btn = document.getElementById('run-btn');
   btn.disabled = true;
   document.getElementById('progress-box').classList.add('on');
