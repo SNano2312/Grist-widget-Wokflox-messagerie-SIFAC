@@ -254,10 +254,25 @@ async function runDiag() {
       const balCols = Object.keys(bal).filter(k => k !== 'id' && k !== 'manualSort');
       const balRows = balCols.length ? bal[balCols[0]].length : 0;
       out += '\n=== TABLE BAL_SIFAC ===\n';
-      out += 'Colonnes (' + balCols.length + ') : ' + balCols.join(', ') + '\n';
+      out += 'Colonnes IDs (' + balCols.length + ') : ' + balCols.join(', ') + '\n';
       out += 'Lignes existantes : ' + balRows + '\n';
+      // Afficher les 3 premières lignes pour voir les valeurs réelles
+      if (balRows > 0) {
+        out += 'Exemple ligne 1 :\n';
+        balCols.forEach(c => { out += '  ' + c + ' = ' + JSON.stringify(bal[c][0]) + '\n'; });
+      }
     } catch(e2) {
       out += '\n=== TABLE BAL_SIFAC ===\nErreur : ' + (e2.message||e2) + '\n';
+    }
+
+    // Diagnostic Log
+    try {
+      const log = await grist.docApi.fetchTable('Log');
+      const logCols = Object.keys(log).filter(k => k !== 'id' && k !== 'manualSort');
+      out += '\n=== TABLE Log ===\n';
+      out += 'Colonnes IDs (' + logCols.length + ') : ' + logCols.join(', ') + '\n';
+    } catch(e3) {
+      out += '\n=== TABLE Log ===\nAbsente ou erreur : ' + (e3.message||e3) + '\n';
     }
 
     box.textContent = out;
