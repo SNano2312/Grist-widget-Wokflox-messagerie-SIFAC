@@ -4,7 +4,32 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Extraction Périmètres ZGDU</title>
-<script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+<script>
+// Charge l'API Grist de façon défensive — si elle échoue, on crée un stub minimal
+window.gristApiLoaded = false;
+</script>
+<script src="https://docs.getgrist.com/grist-plugin-api.js"
+  onload="window.gristApiLoaded=true"
+  onerror="window.gristApiLoaded=false;console.warn('grist-plugin-api.js non chargé')">
+</script>
+<script>
+// Stub minimal si l'API Grist n'est pas disponible
+if (typeof grist === 'undefined') {
+  window.grist = {
+    ready: function() {},
+    on: function() {},
+    getUserProfile: async function() { throw new Error('API non disponible'); },
+    getAccessToken: async function() { throw new Error('API non disponible'); },
+    onOptions: function() {},
+    docApi: {
+      fetchTable: async function(t) { throw new Error('API non disponible: ' + t); },
+      applyUserActions: async function() { throw new Error('API non disponible'); },
+      getDocInfo: async function() { throw new Error('API non disponible'); },
+      listTables: async function() { return []; },
+    }
+  };
+}
+</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
