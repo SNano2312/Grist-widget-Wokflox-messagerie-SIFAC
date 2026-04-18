@@ -273,26 +273,16 @@ async function runExtraction() {
     const nRows   = colKeys.length ? data[colKeys[0]].length : 0;
     if (!nRows) throw new Error('La table ZGDU est vide.');
 
-    // Détecter colonne nom (B) et rôle (C)
-    // Heuristique : la colonne rôle contient des valeurs "YC_" ou "YP_"
-    let colNom = null, colRole = null;
-    for (const col of colKeys) {
-      const hasRole = data[col].some(v => /^Y[CP]_/.test(String(v||'').trim()));
-      if (hasRole && !colRole) colRole = col;
-    }
-    // Colonne nom = première colonne qui n'est pas colRole et a des chaînes non-vides
-    for (const col of colKeys) {
-      if (col === colRole) continue;
-      const hasText = data[col].some(v => typeof v === 'string' && v.trim().length > 0);
-      if (hasText && !colNom) colNom = col;
-    }
-    if (!colNom || !colRole) {
+    // Colonnes confirmées par diagnostic : B = nom utilisateur, C = rôle
+    const colNom  = 'B';
+    const colRole = 'C';
+    if (!data[colNom] || !data[colRole]) {
       throw new Error(
-        `Impossible de détecter les colonnes Nom/Rôle.\n` +
-        `Colonnes disponibles : ${colKeys.join(', ')}\n` +
-        `Lancez le diagnostic pour inspecter la structure.`
+        `Colonnes B ou C introuvables dans ZGDU. ` +
+        `Colonnes disponibles : ${colKeys.join(', ')}`
       );
     }
+
 
     // 2. Construire les dictionnaires
     setProgress(30, 'Analyse des rôles et périmètres…');
