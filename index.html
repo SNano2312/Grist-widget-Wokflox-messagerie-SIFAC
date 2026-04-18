@@ -348,55 +348,50 @@ async function runExtraction() {
     }
 
     // 4. Écrire BAL_SIFAC
-    // Colonnes confirmées : A=Mandant, B=Utilisateur, C=Profil, D=Périm.fin,
-    //                       E=CFI, F=Date, G=Heure, H=Modifié par, I=SAP_ALL
+    // IDs Grist confirmés par diagnostic :
+    //   A=Mandant, B=Utilisateur, C=Profil, D2=Périm.fin,
+    //   E2=CFI, F2=Date, G2=Heure, H2=Modifié par, I=SAP_ALL
+    // Note : la ligne 1 de BAL_SIFAC contient les en-têtes — on l'ignore, on ajoute après
     setProgress(70, `Écriture de ${lignesBAL.length} lignes dans BAL_SIFAC…`);
     await grist.docApi.applyUserActions([['BulkAddRecord', 'BAL_SIFAC',
       new Array(lignesBAL.length).fill(null), {
-        A: lignesBAL.map(l => l[0]),   // Mandant       → "510"
-        B: lignesBAL.map(l => l[1]),   // Utilisateur   → nom
-        C: lignesBAL.map(l => l[2]),   // Profil        → "GESTIONNAIRE"
-        D: lignesBAL.map(l => l[3]),   // Périm. fin.   → "5010"
-        E: lignesBAL.map(l => l[4]),   // CFI           → périmètre 4 chiffres
-        F: lignesBAL.map(l => l[5]),   // Date MAJ      → JJ/MM/AAAA
-        G: lignesBAL.map(l => l[6]),   // Heure MAJ     → HH:MM:SS
-        H: lignesBAL.map(l => l[7]),   // Modifié par   → utilisateur Grist
-        I: lignesBAL.map(l => l[8]),   // SAP_ALL       → ""
+        A:  lignesBAL.map(l => l[0]),  // Mandant       → "510"
+        B:  lignesBAL.map(l => l[1]),  // Utilisateur   → nom
+        C:  lignesBAL.map(l => l[2]),  // Profil        → "GESTIONNAIRE"
+        D2: lignesBAL.map(l => l[3]),  // Périm. fin.   → "5010"
+        E2: lignesBAL.map(l => l[4]),  // CFI           → périmètre 4 chiffres
+        F2: lignesBAL.map(l => l[5]),  // Date MAJ      → JJ/MM/AAAA
+        G2: lignesBAL.map(l => l[6]),  // Heure MAJ     → HH:MM:SS
+        H2: lignesBAL.map(l => l[7]),  // Modifié par   → utilisateur Grist
+        I:  lignesBAL.map(l => l[8]),  // SAP_ALL       → ""
     }]]);
 
     // 5. Écrire Log — mapping positionnel comme pour BAL_SIFAC
     setProgress(88, 'Écriture dans Log…');
 
-    // Écriture dans Log — colonnes fixes A à F
-    // Tente directement ; si la table n'existe pas, on la crée puis on réessaie
+    // Écriture dans Log
+    // IDs Grist confirmés par diagnostic : Horodatage, Utilisateur, Perimetre, Source, Code, Operateur
     const logPayload = {
-      A: lignesLog.map(l => l[0]),  // Horodatage
-      B: lignesLog.map(l => l[1]),  // Utilisateur
-      C: lignesLog.map(l => l[2]),  // Périmètre
-      D: lignesLog.map(l => l[3]),  // Source
-      E: lignesLog.map(l => l[4]),  // Code
-      F: lignesLog.map(l => l[5]),  // Opérateur
+      Horodatage:  lignesLog.map(l => l[0]),
+      Utilisateur: lignesLog.map(l => l[1]),
+      Perimetre:   lignesLog.map(l => l[2]),
+      Source:      lignesLog.map(l => l[3]),
+      Code:        lignesLog.map(l => l[4]),
+      Operateur:   lignesLog.map(l => l[5]),
     };
     try {
       await grist.docApi.applyUserActions([
         ['BulkAddRecord', 'Log', new Array(lignesLog.length).fill(null), logPayload]
       ]);
     } catch(e) {
-      // Table Log absente → on la crée avec les bons IDs puis on réécrit
+      // Table Log absente → on la crée puis on réécrit
       await grist.docApi.applyUserActions([['AddTable', 'Log', [
         {id:'Horodatage',  type:'Text'}, {id:'Utilisateur', type:'Text'},
         {id:'Perimetre',   type:'Text'}, {id:'Source',      type:'Text'},
         {id:'Code',        type:'Text'}, {id:'Operateur',   type:'Text'},
       ]]]);
       await grist.docApi.applyUserActions([
-        ['BulkAddRecord', 'Log', new Array(lignesLog.length).fill(null), {
-          Horodatage:  lignesLog.map(l => l[0]),
-          Utilisateur: lignesLog.map(l => l[1]),
-          Perimetre:   lignesLog.map(l => l[2]),
-          Source:      lignesLog.map(l => l[3]),
-          Code:        lignesLog.map(l => l[4]),
-          Operateur:   lignesLog.map(l => l[5]),
-        }]
+        ['BulkAddRecord', 'Log', new Array(lignesLog.length).fill(null), logPayload]
       ]);
     }
 
