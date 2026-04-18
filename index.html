@@ -149,31 +149,17 @@ const ROLES_REQUIS = ['YC_ORDO_DELEGUE', 'YC_ORDO_GU'];
 const YP_RE = /^YP_\d{4}$/;
 
 let currentUser = 'inconnu';
-let gristReady  = false;
 
 // ── GRIST READY ──────────────────────────────────────────────────────────────
 // On attend que Grist confirme l'accès avant d'activer les boutons
 grist.ready({ requiredAccess: 'full' });
 
-grist.on('message', async function(e) {
-  // Grist envoie 'ready' quand le widget est initialisé et que l'accès est accordé
-  if (e && e.type === 'ready') {
-    onGristReady();
-  }
-});
+// Activer les boutons immédiatement — pas besoin d'attendre un événement Grist
+document.getElementById('run-btn').disabled  = false;
+document.getElementById('diag-btn').disabled = false;
 
-// Fallback : si l'event 'ready' n'arrive pas (versions anciennes), on attend 1s
-setTimeout(() => { if (!gristReady) onGristReady(); }, 1200);
-
-async function onGristReady() {
-  if (gristReady) return;
-  gristReady = true;
-
-  // Activer les boutons
-  document.getElementById('run-btn').disabled  = false;
-  document.getElementById('diag-btn').disabled = false;
-
-  // Tente getUserProfile() en silencieux ; si ça marche on pré-remplit le champ
+// Tente getUserProfile() en silencieux pour pré-remplir l'opérateur
+(async () => {
   try {
     const profile = await grist.getUserProfile();
     const val = profile.email || profile.name || profile.loginEmail || '';
@@ -181,10 +167,8 @@ async function onGristReady() {
       currentUser = val;
       document.getElementById('username-input').value = val;
     }
-  } catch(e) {
-    // API non disponible — l'utilisateur saisit manuellement
-  }
-}
+  } catch(e) { /* API non disponible — saisie manuelle */ }
+})();
 
 // ── DIAGNOSTIC ───────────────────────────────────────────────────────────────
 async function runDiag() {
