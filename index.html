@@ -248,6 +248,18 @@ async function runDiag() {
       }
     }
 
+    // Diagnostic BAL_SIFAC
+    try {
+      const bal = await grist.docApi.fetchTable('BAL_SIFAC');
+      const balCols = Object.keys(bal).filter(k => k !== 'id' && k !== 'manualSort');
+      const balRows = balCols.length ? bal[balCols[0]].length : 0;
+      out += '\n=== TABLE BAL_SIFAC ===\n';
+      out += 'Colonnes (' + balCols.length + ') : ' + balCols.join(', ') + '\n';
+      out += 'Lignes existantes : ' + balRows + '\n';
+    } catch(e2) {
+      out += '\n=== TABLE BAL_SIFAC ===\nErreur : ' + (e2.message||e2) + '\n';
+    }
+
     box.textContent = out;
 
   } catch(e) {
@@ -320,11 +332,37 @@ async function runExtraction() {
       return;
     }
 
+    // 4. Inspecter les colonnes réelles de BAL_SIFAC puis écrire
+    let balRealCols;
+    try {
+      const balMeta = await grist.docApi.fetchTable('BAL_SIFAC');
+      balRealCols = Object.keys(balMeta).filter(k => k !== 'id' && k !== 'manualSort');
+    } catch(e) {
+      throw new Error('Impossible de lire BAL_SIFAC : ' + (e.message||e));
+    }
+
     // 4. Écrire BAL_SIFAC
     setProgress(70, `Écriture de ${lignesBAL.length} lignes dans BAL_SIFAC…`);
-    const balColIds = ['Mandant','Utilisateur','Profil','Perimetre_financier','CFI','Date_MAJ','Heure_MAJ','Modifie_par','SAP_ALL'];
+    // Les 9 valeurs par ligne correspondent à ces 9 champs dans l'ordre :
+    // [Mandant, Utilisateur, Profil, Perim_fin, CFI, Date, Heure, Operateur, SAP_ALL]
+    // On mappe sur les vrais IDs Grist (peut différer des noms affichés)
+    // Ordre attendu = ordre des colonnes dans BAL_SIFAC (on skip 'id' et 'manualSort')
+    if (balRealCols.length < 9) {
+      throw new Error(
+        `BAL_SIFAC n'a que ${balRealCols.length} colonne(s) : ${balRealCols.join(', ')}\n` +
+        `9 colonnes sont attendues.`
+      );
+    }
+    // Mapping positionnel : on prend les 9 premières colonnes dans l'ordre
     const balCols = {};
-    balColIds.forEach((c, ci) => { balCols[c] = lignesBAL.map(l => l[ci]); });
+    balRealCols.slice(0, 9).forEach((colId, ci) => {
+      balCols[colId] = lignesBAL.map(l => l[ci]);
+    });
+    // Afficher le mapping dans le résultat pour vérification
+    const mappingInfo = balRealCols.slice(0,9).map((c,i)=>
+      ['Mandant','Utilisateur','Profil','Périm.fin','CFI','Date','Heure','Opérateur','SAP_ALL'][i]+' → '+c
+    ).join(', ');
+
     await grist.docApi.applyUserActions([
       ['BulkAddRecord', 'BAL_SIFAC', new Array(lignesBAL.length).fill(null), balCols]
     ]);
@@ -353,7 +391,7 @@ async function runExtraction() {
     setProgress(100, 'Terminé.');
     showResult('success',
       `Extraction terminée — ${lignesBAL.length} ligne${lignesBAL.length > 1 ? 's' : ''} créée${lignesBAL.length > 1 ? 's' : ''}`,
-      `Opérateur : <code>${esc(currentUser)}</code> · colonnes lues : <code>${colNom}</code> (nom), <code>${colRole}</code> (rôle)`
+      `Opérateur : <code>${esc(currentUser)}</code> · mapping : <code>${esc(mappingInfo)}</code>`
     );
 
     // Aperçu
