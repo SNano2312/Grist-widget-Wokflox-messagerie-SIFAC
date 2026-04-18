@@ -193,6 +193,29 @@ async function runDiag() {
   box.textContent = 'Chargement de ZGDU…';
   document.getElementById('result-box').classList.remove('on');
 
+  // ── TEST PROFIL UTILISATEUR ─────────────────────────────────────────────
+  let profOut = '=== PROFIL UTILISATEUR ===\n';
+  try {
+    const p = await grist.getUserProfile();
+    profOut += 'getUserProfile() : ' + JSON.stringify(p, null, 2) + '\n';
+  } catch(e) { profOut += 'getUserProfile() ERREUR : ' + (e.message||e) + '\n'; }
+  try {
+    const t = await grist.getAccessToken({ readOnly: true });
+    const parts = t.token.split('.');
+    if (parts.length === 3) {
+      const b64 = parts[1].replace(/-/g,'+').replace(/_/g,'/');
+      const pad = b64 + '='.repeat((4 - b64.length % 4) % 4);
+      const pl = JSON.parse(atob(pad));
+      profOut += 'JWT payload : ' + JSON.stringify(pl, null, 2) + '\n';
+    } else { profOut += 'getAccessToken token brut : ' + t.token + '\n'; }
+  } catch(e) { profOut += 'getAccessToken() ERREUR : ' + (e.message||e) + '\n'; }
+  try {
+    const info = await grist.docApi.getDocInfo();
+    profOut += 'getDocInfo() : ' + JSON.stringify(info, null, 2) + '\n';
+  } catch(e) { profOut += 'getDocInfo() ERREUR : ' + (e.message||e) + '\n'; }
+  box.textContent = profOut + '\n\n';
+
+
   try {
     const data = await grist.docApi.fetchTable('ZGDU');
     const allKeys = Object.keys(data);
