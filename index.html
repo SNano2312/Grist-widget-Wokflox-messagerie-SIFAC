@@ -167,17 +167,21 @@ async function onGristReady() {
   document.getElementById('run-btn').disabled  = false;
   document.getElementById('diag-btn').disabled = false;
 
-  // Récupérer l'utilisateur
+  // Récupérer le nom de l'utilisateur connecté à Grist
+  // grist.getUserProfile() est l'API officielle pour ça
   try {
-    const token = await grist.getAccessToken({ readOnly: true });
-    const payload = JSON.parse(atob(token.token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
-    currentUser = payload.email || payload.sub || payload.name || 'inconnu';
+    const profile = await grist.getUserProfile();
+    currentUser = profile.email || profile.name || profile.loginEmail || 'inconnu';
   } catch(e) {
     try {
-      // Fallback via docApi
-      const info = await grist.docApi.getDocInfo();
-      currentUser = (info && info.userRef) ? info.userRef : 'inconnu';
-    } catch(e2) { currentUser = 'inconnu'; }
+      // Fallback : décode le JWT de l'access token
+      const token = await grist.getAccessToken({ readOnly: true });
+      const b64 = token.token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+      const payload = JSON.parse(atob(b64));
+      currentUser = payload.email || payload.name || payload.sub || 'inconnu';
+    } catch(e2) {
+      currentUser = 'inconnu';
+    }
   }
   document.getElementById('username-display').textContent = currentUser;
 }
