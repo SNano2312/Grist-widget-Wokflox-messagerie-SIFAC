@@ -8,545 +8,390 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #F7F6F2; --surface: #FFFFFF; --surface2: #F0EEE8;
-    --border: #E2DFD8; --text: #1A1916; --text2: #6B6860; --text3: #A8A49C;
-    --accent: #2D5BE3; --accent-light: #EBF0FD;
-    --green: #1A7A4A; --green-light: #E6F4ED;
-    --red: #C53030; --red-light: #FEF2F2;
-    --amber: #B45309; --amber-light: #FFFBEB;
-    --radius: 10px; --radius-sm: 6px;
+    --bg:#F7F6F2; --surface:#FFFFFF; --surface2:#F0EEE8;
+    --border:#E2DFD8; --text:#1A1916; --text2:#6B6860; --text3:#A8A49C;
+    --accent:#2D5BE3; --accent-light:#EBF0FD;
+    --green:#1A7A4A; --green-light:#E6F4ED;
+    --red:#C53030; --red-light:#FEF2F2;
+    --amber:#B45309; --amber-light:#FFFBEB;
+    --radius:10px; --radius-sm:6px;
   }
-  body { font-family: -apple-system,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:16px; font-size:14px; line-height:1.5; }
+  body { font-family:-apple-system,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:16px; font-size:14px; line-height:1.5; }
 
   .header { margin-bottom:16px; }
   .header h1 { font-size:17px; font-weight:600; letter-spacing:-0.3px; }
   .header p { font-size:12px; color:var(--text2); margin-top:3px; }
 
-  /* INFO CARD */
   .info-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:13px 15px; margin-bottom:14px; }
-  .info-card h2 { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--text3); margin-bottom:10px; }
-  .info-row { display:flex; align-items:center; gap:10px; font-size:13px; margin-bottom:6px; }
+  .info-card h2 { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--text3); margin-bottom:10px; }
+  .info-row { display:flex; align-items:flex-start; gap:10px; margin-bottom:6px; font-size:13px; }
   .info-row:last-child { margin-bottom:0; }
-  .info-label { color:var(--text2); min-width:110px; font-size:12px; }
-  .info-value { font-weight:500; color:var(--text); }
+  .info-label { color:var(--text2); min-width:110px; font-size:12px; padding-top:1px; }
   .badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; }
-  .badge-blue  { background:var(--accent-light); color:var(--accent); }
-  .badge-green { background:var(--green-light);  color:var(--green); }
-  .badge-amber { background:var(--amber-light);  color:var(--amber); }
+  .badge-blue { background:var(--accent-light); color:var(--accent); }
+  .roles-row { display:flex; gap:5px; flex-wrap:wrap; }
+  .role-chip { background:var(--accent-light); border:1px solid #b3c6f7; border-radius:4px; padding:2px 8px; font-size:11px; font-family:monospace; font-weight:600; color:var(--accent); }
 
-  /* ROLES */
-  .roles-row { display:flex; gap:6px; flex-wrap:wrap; }
-  .role-chip { background:var(--surface2); border:1px solid var(--border); border-radius:4px; padding:2px 8px; font-size:11px; font-family:monospace; font-weight:500; color:var(--text); }
-  .role-chip.required { background:var(--accent-light); border-color:#b3c6f7; color:var(--accent); }
+  .btn { width:100%; padding:11px; border:none; border-radius:var(--radius); font-size:13px; font-weight:600; cursor:pointer; margin-bottom:8px; transition:opacity .15s; }
+  .btn:disabled { opacity:.45; cursor:not-allowed; }
+  .btn-primary { background:var(--accent); color:#fff; }
+  .btn-primary:hover:not(:disabled) { opacity:.88; }
+  .btn-ghost { background:var(--surface2); color:var(--text); border:1px solid var(--border); }
+  .btn-ghost:hover:not(:disabled) { background:var(--border); }
 
-  /* RUN BUTTON */
-  .run-btn { width:100%; padding:12px; background:var(--accent); color:#fff; border:none; border-radius:var(--radius); font-size:14px; font-weight:600; cursor:pointer; transition:opacity .15s, transform .1s; margin-bottom:14px; }
-  .run-btn:hover { opacity:.9; }
-  .run-btn:active { transform:scale(.99); }
-  .run-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
-
-  /* PROGRESS */
-  .progress-box { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:13px 15px; margin-bottom:14px; display:none; }
-  .progress-box.visible { display:block; }
+  .progress-box { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:13px 15px; margin-bottom:12px; display:none; }
+  .progress-box.on { display:block; }
   .progress-label { font-size:12px; color:var(--text2); margin-bottom:7px; }
-  .progress-track { height:6px; background:var(--surface2); border-radius:3px; overflow:hidden; }
-  .progress-fill { height:100%; border-radius:3px; background:var(--accent); width:0%; transition:width .3s; }
-  .progress-steps { font-size:11px; color:var(--text3); margin-top:6px; }
+  .progress-track { height:5px; background:var(--surface2); border-radius:3px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:3px; background:var(--accent); width:0%; transition:width .25s; }
 
-  /* RESULT */
-  .result-box { border-radius:var(--radius); padding:13px 15px; margin-bottom:14px; display:none; }
-  .result-box.visible { display:block; }
-  .result-box.success { background:var(--green-light); border:1px solid #a7f3cc; }
+  .result-box { border-radius:var(--radius); padding:13px 15px; margin-bottom:12px; display:none; }
+  .result-box.on { display:block; }
+  .result-box.success { background:var(--green-light); border:1px solid #86efac; }
   .result-box.error   { background:var(--red-light);   border:1px solid #fca5a5; }
   .result-box.warning { background:var(--amber-light);  border:1px solid #fcd34d; }
-  .result-title { font-size:13px; font-weight:600; margin-bottom:6px; }
+  .result-title { font-size:13px; font-weight:600; margin-bottom:5px; }
   .result-box.success .result-title { color:var(--green); }
   .result-box.error   .result-title { color:var(--red); }
   .result-box.warning .result-title { color:var(--amber); }
   .result-detail { font-size:12px; color:var(--text2); line-height:1.7; }
-  .result-detail code { background:rgba(0,0,0,.06); padding:1px 5px; border-radius:3px; font-family:monospace; font-size:11px; }
+  .result-detail code { background:rgba(0,0,0,.07); padding:1px 5px; border-radius:3px; font-family:monospace; font-size:11px; }
 
-  /* PREVIEW TABLE */
-  .preview-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:14px; display:none; }
-  .preview-card.visible { display:block; }
-  .preview-header { display:flex; align-items:center; justify-content:space-between; padding:10px 13px; border-bottom:1px solid var(--border); background:var(--surface2); }
-  .preview-header h2 { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--text3); }
+  .diag-box { display:none; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:13px 15px; margin-bottom:12px; font-size:11px; font-family:monospace; white-space:pre-wrap; overflow:auto; max-height:450px; color:var(--text); line-height:1.6; }
+  .diag-box.on { display:block; }
+
+  .preview-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:12px; display:none; }
+  .preview-card.on { display:block; }
+  .card-header { display:flex; align-items:center; justify-content:space-between; padding:9px 13px; border-bottom:1px solid var(--border); background:var(--surface2); }
+  .card-header h2 { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--text3); }
   .preview-scroll { overflow-x:auto; }
   table { width:100%; border-collapse:collapse; font-size:12px; }
-  th { background:var(--surface2); color:var(--text3); font-weight:600; font-size:10px; text-transform:uppercase; letter-spacing:.4px; padding:6px 10px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; }
-  td { padding:5px 10px; border-bottom:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  th { background:var(--surface2); color:var(--text3); font-weight:600; font-size:10px; text-transform:uppercase; letter-spacing:.4px; padding:6px 9px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; }
+  td { padding:5px 9px; border-bottom:1px solid var(--border); color:var(--text); white-space:nowrap; }
   tr:last-child td { border-bottom:none; }
   tr:hover td { background:var(--surface2); }
   td.mono { font-family:monospace; font-size:11px; }
-
-  /* LOG TABLE */
-  .log-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:none; }
-  .log-card.visible { display:block; }
-  .log-header { display:flex; align-items:center; justify-content:space-between; padding:10px 13px; border-bottom:1px solid var(--border); background:var(--surface2); }
-  .log-header h2 { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--text3); }
-  .toggle-btn { font-size:11px; padding:3px 9px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--surface); color:var(--text2); cursor:pointer; }
-  .toggle-btn:hover { background:var(--surface2); }
-  .log-body { display:none; padding:10px 13px; }
-  .log-body.open { display:block; }
-  .log-entry { font-size:11px; color:var(--text2); padding:3px 0; border-bottom:1px solid var(--border); font-family:monospace; }
-  .log-entry:last-child { border-bottom:none; }
-  .log-entry .ts { color:var(--text3); margin-right:8px; }
-  .log-entry .ok  { color:var(--green); }
-  .log-entry .err { color:var(--red); }
+  .count-badge { background:var(--green-light); color:var(--green); border-radius:4px; padding:2px 8px; font-size:11px; font-weight:600; }
 </style>
 </head>
 <body>
 
 <div class="header">
   <h1>Extraction Périmètres ZGDU</h1>
-  <p>Lit la table <code style="font-size:11px;background:var(--surface2);padding:0 4px;border-radius:3px">ZGDU</code>, filtre les utilisateurs ayant les deux rôles requis, et écrit dans <code style="font-size:11px;background:var(--surface2);padding:0 4px;border-radius:3px">BAL_SIFAC</code> + <code style="font-size:11px;background:var(--surface2);padding:0 4px;border-radius:3px">Log</code>.</p>
+  <p>Lit <code style="font-size:11px;background:var(--surface2);padding:0 4px;border-radius:3px">ZGDU</code>, filtre les utilisateurs éligibles, écrit dans <code style="font-size:11px;background:var(--surface2);padding:0 4px;border-radius:3px">BAL_SIFAC</code> et <code style="font-size:11px;background:var(--surface2);padding:0 4px;border-radius:3px">Log</code>.</p>
 </div>
 
-<!-- INFO -->
 <div class="info-card">
   <h2>Paramètres</h2>
   <div class="info-row">
     <span class="info-label">Rôles requis</span>
     <div class="roles-row">
-      <span class="role-chip required">YC_ORDO_DELEGUE</span>
-      <span class="role-chip required">YC_ORDO_GU</span>
+      <span class="role-chip">YC_ORDO_DELEGUE</span>
+      <span class="role-chip">YC_ORDO_GU</span>
     </div>
   </div>
   <div class="info-row">
     <span class="info-label">Périmètres</span>
-    <span class="info-value" style="font-size:12px;color:var(--text2)">Colonnes C de ZGDU au format <span class="role-chip" style="font-size:11px">YP_####</span></span>
+    <span style="font-size:12px;color:var(--text2)">Colonne rôle au format <code style="background:var(--surface2);padding:0 4px;border-radius:3px;font-family:monospace;font-size:11px">YP_####</code></span>
   </div>
-  <div class="info-row">
-    <span class="info-label">Mandant</span>
-    <span class="badge badge-blue">510</span>
-  </div>
-  <div class="info-row">
-    <span class="info-label">Profil</span>
-    <span class="badge badge-blue">GESTIONNAIRE</span>
-  </div>
-  <div class="info-row">
-    <span class="info-label">Périm. financier</span>
-    <span class="badge badge-blue">5010</span>
-  </div>
-  <div class="info-row">
-    <span class="info-label">Utilisateur</span>
-    <span class="info-value" id="username-display">—</span>
-  </div>
+  <div class="info-row"><span class="info-label">Mandant</span><span class="badge badge-blue">510</span></div>
+  <div class="info-row"><span class="info-label">Profil</span><span class="badge badge-blue">GESTIONNAIRE</span></div>
+  <div class="info-row"><span class="info-label">Périm. financier</span><span class="badge badge-blue">5010</span></div>
+  <div class="info-row"><span class="info-label">Opérateur</span><span id="username-display" style="font-size:12px;color:var(--text2)">chargement…</span></div>
 </div>
 
-<!-- BOUTON -->
-<button class="run-btn" id="run-btn" onclick="runExtraction()">
-  ▶ Lancer l'extraction
-</button>
+<button class="btn btn-primary" id="run-btn" onclick="runExtraction()" disabled>▶ Lancer l'extraction</button>
+<button class="btn btn-ghost"   id="diag-btn" onclick="runDiag()"       disabled>🔍 Diagnostiquer ZGDU</button>
 
-<button class="run-btn" onclick="runDiag()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);margin-bottom:6px">
-  🔍 Diagnostiquer la table ZGDU
-</button>
-<div id="diag-box" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;margin-bottom:14px;font-size:11px;font-family:monospace;white-space:pre-wrap;overflow-x:auto;max-height:400px;overflow-y:auto;color:var(--text)"></div>
-
-<!-- PROGRESS -->
 <div class="progress-box" id="progress-box">
-  <div class="progress-label" id="progress-label">Lecture de ZGDU…</div>
+  <div class="progress-label" id="progress-label">…</div>
   <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-  <div class="progress-steps" id="progress-steps"></div>
 </div>
 
-<!-- RESULT -->
 <div class="result-box" id="result-box">
-  <div class="result-title" id="result-title"></div>
+  <div class="result-title"  id="result-title"></div>
   <div class="result-detail" id="result-detail"></div>
 </div>
 
-<!-- PREVIEW BAL_SIFAC -->
+<div class="diag-box" id="diag-box"></div>
+
 <div class="preview-card" id="preview-card">
-  <div class="preview-header">
+  <div class="card-header">
     <h2>Lignes écrites dans BAL_SIFAC</h2>
-    <span id="preview-count" class="badge badge-green"></span>
+    <span class="count-badge" id="preview-count"></span>
   </div>
   <div class="preview-scroll">
     <table>
-      <thead>
-        <tr>
-          <th>Mandant</th><th>Utilisateur</th><th>Profil</th>
-          <th>Périm. financier</th><th>CFI</th><th>Date MAJ</th>
-          <th>Heure MAJ</th><th>Modifié par</th><th>SAP_ALL</th>
-        </tr>
-      </thead>
+      <thead><tr>
+        <th>Mandant</th><th>Utilisateur</th><th>Profil</th>
+        <th>Périm. fin.</th><th>CFI</th><th>Date MAJ</th>
+        <th>Heure MAJ</th><th>Modifié par</th><th>SAP_ALL</th>
+      </tr></thead>
       <tbody id="preview-tbody"></tbody>
     </table>
   </div>
 </div>
 
-<!-- LOG -->
-<div class="log-card" id="log-card">
-  <div class="log-header">
-    <h2>Journal d'exécution</h2>
-    <button class="toggle-btn" onclick="toggleLog()">Afficher ▼</button>
-  </div>
-  <div class="log-body" id="log-body"></div>
-</div>
-
 <script>
 // ── UTILS ────────────────────────────────────────────────────────────────────
-const now  = () => new Date();
 const fmtDate = d => d.toLocaleDateString('fr-FR');
 const fmtTime = d => d.toLocaleTimeString('fr-FR');
 const fmtDT   = d => `${fmtDate(d)} ${fmtTime(d)}`;
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
 const ROLES_REQUIS = ['YC_ORDO_DELEGUE', 'YC_ORDO_GU'];
-const YP_RE = /^YP_\d{4}$/;   // YP_XXXX exactement 4 chiffres
+const YP_RE = /^YP_\d{4}$/;
 
-let currentUser = '';
-let logEntries  = [];
-let logOpen     = false;
+let currentUser = 'inconnu';
+let gristReady  = false;
 
-// ── GRIST INIT ───────────────────────────────────────────────────────────────
+// ── GRIST READY ──────────────────────────────────────────────────────────────
+// On attend que Grist confirme l'accès avant d'activer les boutons
 grist.ready({ requiredAccess: 'full' });
 
-// Récupère le nom de l'utilisateur connecté
-grist.docApi.getDocInfo().then(info => {
-  // info ne contient pas directement le user; on utilise l'API access token
-}).catch(()=>{});
+grist.on('message', async function(e) {
+  // Grist envoie 'ready' quand le widget est initialisé et que l'accès est accordé
+  if (e && e.type === 'ready') {
+    onGristReady();
+  }
+});
 
-// Tentative de récupération du nom Windows-like via getAccessToken
-(async () => {
+// Fallback : si l'event 'ready' n'arrive pas (versions anciennes), on attend 1s
+setTimeout(() => { if (!gristReady) onGristReady(); }, 1200);
+
+async function onGristReady() {
+  if (gristReady) return;
+  gristReady = true;
+
+  // Activer les boutons
+  document.getElementById('run-btn').disabled  = false;
+  document.getElementById('diag-btn').disabled = false;
+
+  // Récupérer l'utilisateur
   try {
     const token = await grist.getAccessToken({ readOnly: true });
-    // Le token JWT contient l'email dans le payload
-    const payload = JSON.parse(atob(token.token.split('.')[1]));
-    currentUser = payload.email || payload.name || 'inconnu';
+    const payload = JSON.parse(atob(token.token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+    currentUser = payload.email || payload.sub || payload.name || 'inconnu';
   } catch(e) {
-    currentUser = 'inconnu';
+    try {
+      // Fallback via docApi
+      const info = await grist.docApi.getDocInfo();
+      currentUser = (info && info.userRef) ? info.userRef : 'inconnu';
+    } catch(e2) { currentUser = 'inconnu'; }
   }
   document.getElementById('username-display').textContent = currentUser;
-})();
-
-// ── PROGRESS HELPERS ─────────────────────────────────────────────────────────
-function setProgress(pct, label, step) {
-  document.getElementById('progress-fill').style.width  = pct + '%';
-  document.getElementById('progress-label').textContent = label;
-  if (step) document.getElementById('progress-steps').textContent = step;
-}
-
-function addLog(msg, type='info') {
-  logEntries.push({ ts: fmtDT(now()), msg, type });
-  const cls = type==='ok' ? 'ok' : type==='error' ? 'err' : '';
-  const lb = document.getElementById('log-body');
-  lb.innerHTML += `<div class="log-entry"><span class="ts">${fmtDT(now())}</span><span class="${cls}">${esc(msg)}</span></div>`;
-}
-
-function toggleLog() {
-  logOpen = !logOpen;
-  document.getElementById('log-body').classList.toggle('open', logOpen);
-  document.querySelector('.toggle-btn').textContent = logOpen ? 'Masquer ▲' : 'Afficher ▼';
-}
-
-// ── EXTRACTION PRINCIPALE ────────────────────────────────────────────────────
-async function runExtraction() {
-  const btn = document.getElementById('run-btn');
-  btn.disabled = true;
-
-  // Reset UI
-  document.getElementById('progress-box').classList.add('visible');
-  document.getElementById('result-box').classList.remove('visible');
-  document.getElementById('preview-card').classList.remove('visible');
-  document.getElementById('log-card').classList.remove('visible');
-  document.getElementById('preview-tbody').innerHTML = '';
-  document.getElementById('log-body').innerHTML = '';
-  logEntries = [];
-
-  try {
-    // ── ÉTAPE 1 : Lecture ZGDU ───────────────────────────────────────────────
-    setProgress(10, 'Lecture de la table ZGDU…', 'Étape 1/4');
-    addLog('Lecture ZGDU…');
-
-    let zgdu;
-    try {
-      zgdu = await grist.docApi.fetchTable('ZGDU');
-    } catch(e) {
-      throw new Error(`Impossible de lire la table ZGDU : ${e.message || e}`);
-    }
-
-    // Détecter les colonnes B (nom) et C (rôle)
-    // On cherche par position ou par nom probable
-    const colKeys = Object.keys(zgdu).filter(k => k !== 'id' && k !== 'manualSort');
-    if (colKeys.length < 2) throw new Error('La table ZGDU doit avoir au moins 2 colonnes (nom, rôle).');
-
-    // Heuristique : colonne B = 1ère col non-id avec des noms, colonne C = 2ème
-    // On prend les deux premières colonnes non-système
-    const colNom   = colKeys[0];
-    const colRole  = colKeys[1];
-    const nRows    = zgdu[colNom].length;
-
-    addLog(`ZGDU : ${nRows} lignes, colonnes "${colNom}" (nom) / "${colRole}" (rôle)`);
-
-    // ── ÉTAPE 2 : Construction des dictionnaires ─────────────────────────────
-    setProgress(30, 'Analyse des rôles et périmètres…', 'Étape 2/4');
-
-    // dictRoles    : { nom -> Set{role1, role2, ...} }
-    // dictPerims   : { nom -> Set{YP_XXXX, ...} }
-    const dictRoles  = {};
-    const dictPerims = {};
-
-    for (let i = 0; i < nRows; i++) {
-      const nom  = String(zgdu[colNom][i]  || '').trim();
-      const role = String(zgdu[colRole][i] || '').trim();
-      if (!nom || !role) continue;
-
-      if (!dictRoles[nom])  { dictRoles[nom]  = new Set(); dictPerims[nom] = new Set(); }
-
-      dictRoles[nom].add(role);
-
-      // Périmètre YP_XXXX (exactement 7 caractères, 4 chiffres)
-      if (YP_RE.test(role)) {
-        dictPerims[nom].add(role);
-      }
-    }
-
-    const nbNoms = Object.keys(dictRoles).length;
-    addLog(`${nbNoms} utilisateurs distincts trouvés dans ZGDU`);
-
-    // ── ÉTAPE 3 : Filtrage + construction des lignes ─────────────────────────
-    setProgress(50, 'Filtrage des utilisateurs éligibles…', 'Étape 3/4');
-
-    const lignesBAL = [];   // lignes à insérer dans BAL_SIFAC
-    const lignesLog = [];   // lignes à insérer dans Log
-    const ts = now();
-    const dateStr = fmtDate(ts);
-    const timeStr = fmtTime(ts);
-
-    let nbEligibles = 0;
-
-    for (const nom of Object.keys(dictRoles)) {
-      const roles  = dictRoles[nom];
-      const perims = dictPerims[nom];
-
-      // Doit avoir les DEUX rôles requis
-      const eligible = ROLES_REQUIS.every(r => roles.has(r));
-      if (!eligible) continue;
-
-      nbEligibles++;
-
-      if (perims.size === 0) {
-        addLog(`${nom} : éligible mais aucun périmètre YP_XXXX trouvé`, 'warn');
-        continue;
-      }
-
-      for (const perimetre of perims) {
-        const perimetre4 = perimetre.slice(3); // "YP_1234" → "1234"
-
-        lignesBAL.push({
-          Mandant:             '510',
-          Utilisateur:         nom,
-          Profil:              'GESTIONNAIRE',
-          Perimetre_financier: '5010',
-          CFI:                 perimetre4,
-          Date_MAJ:            dateStr,
-          Heure_MAJ:           timeStr,
-          Modifie_par:         currentUser,
-          SAP_ALL:             '',
-        });
-
-        lignesLog.push({
-          Horodatage:  fmtDT(ts),
-          Utilisateur: nom,
-          Perimetre:   perimetre4,
-          Source:      'Direct',
-          Code:        perimetre4,
-          Operateur:   currentUser,
-        });
-      }
-    }
-
-    addLog(`${nbEligibles} utilisateurs éligibles — ${lignesBAL.length} lignes à créer`);
-
-    if (lignesBAL.length === 0) {
-      showResult('warning',
-        'Aucune ligne à créer',
-        `Aucun utilisateur dans ZGDU ne possède simultanément les rôles <code>YC_ORDO_DELEGUE</code> et <code>YC_ORDO_GU</code> avec un périmètre <code>YP_XXXX</code>.`
-      );
-      btn.disabled = false;
-      return;
-    }
-
-    // ── ÉTAPE 4 : Écriture dans BAL_SIFAC et Log ────────────────────────────
-    setProgress(70, `Écriture de ${lignesBAL.length} lignes dans BAL_SIFAC…`, 'Étape 4/4');
-
-    // Construire les actions BulkAddRecord pour BAL_SIFAC
-    // applyUserActions([["BulkAddRecord", tableName, rowCount, {col: [values]}]])
-    const balCols = {
-      Mandant:             lignesBAL.map(l=>l.Mandant),
-      Utilisateur:         lignesBAL.map(l=>l.Utilisateur),
-      Profil:              lignesBAL.map(l=>l.Profil),
-      Perimetre_financier: lignesBAL.map(l=>l.Perimetre_financier),
-      CFI:                 lignesBAL.map(l=>l.CFI),
-      Date_MAJ:            lignesBAL.map(l=>l.Date_MAJ),
-      Heure_MAJ:           lignesBAL.map(l=>l.Heure_MAJ),
-      Modifie_par:         lignesBAL.map(l=>l.Modifie_par),
-      SAP_ALL:             lignesBAL.map(l=>l.SAP_ALL),
-    };
-
-    try {
-      await grist.docApi.applyUserActions([
-        ['BulkAddRecord', 'BAL_SIFAC', new Array(lignesBAL.length).fill(null), balCols]
-      ]);
-      addLog(`${lignesBAL.length} lignes insérées dans BAL_SIFAC`, 'ok');
-    } catch(e) {
-      throw new Error(`Erreur lors de l'écriture dans BAL_SIFAC : ${e.message || e}`);
-    }
-
-    // Écriture dans Log (création auto des colonnes si table vide)
-    setProgress(88, 'Écriture dans la table Log…', 'Étape 4/4');
-
-    const logCols = {
-      Horodatage:  lignesLog.map(l=>l.Horodatage),
-      Utilisateur: lignesLog.map(l=>l.Utilisateur),
-      Perimetre:   lignesLog.map(l=>l.Perimetre),
-      Source:      lignesLog.map(l=>l.Source),
-      Code:        lignesLog.map(l=>l.Code),
-      Operateur:   lignesLog.map(l=>l.Operateur),
-    };
-
-    try {
-      await grist.docApi.applyUserActions([
-        ['BulkAddRecord', 'Log', new Array(lignesLog.length).fill(null), logCols]
-      ]);
-      addLog(`${lignesLog.length} lignes insérées dans Log`, 'ok');
-    } catch(e) {
-      // La table Log n'existe pas → on tente de la créer
-      addLog(`Table Log absente — tentative de création…`, 'warn');
-      try {
-        await grist.docApi.applyUserActions([
-          ['AddTable', 'Log', [
-            {id:'Horodatage',  type:'Text'},
-            {id:'Utilisateur', type:'Text'},
-            {id:'Perimetre',   type:'Text'},
-            {id:'Source',      type:'Text'},
-            {id:'Code',        type:'Text'},
-            {id:'Operateur',   type:'Text'},
-          ]]
-        ]);
-        await grist.docApi.applyUserActions([
-          ['BulkAddRecord', 'Log', new Array(lignesLog.length).fill(null), logCols]
-        ]);
-        addLog(`Table Log créée et ${lignesLog.length} lignes insérées`, 'ok');
-      } catch(e2) {
-        addLog(`Impossible d'écrire dans Log : ${e2.message || e2}`, 'error');
-        // On ne bloque pas — BAL_SIFAC a déjà été écrit avec succès
-      }
-    }
-
-    setProgress(100, 'Terminé.', '');
-
-    // ── AFFICHAGE RÉSULTAT ───────────────────────────────────────────────────
-    showResult('success',
-      `Extraction terminée — ${lignesBAL.length} ligne${lignesBAL.length>1?'s':''} créée${lignesBAL.length>1?'s':''}`,
-      `${nbEligibles} utilisateur${nbEligibles>1?'s':''} éligible${nbEligibles>1?'s':''} · 
-       table <code>BAL_SIFAC</code> mise à jour · 
-       table <code>Log</code> mise à jour · 
-       opérateur : <code>${esc(currentUser)}</code>`
-    );
-
-    // Aperçu des lignes écrites
-    const tbody = document.getElementById('preview-tbody');
-    lignesBAL.forEach(l => {
-      tbody.innerHTML += `<tr>
-        <td class="mono">${esc(l.Mandant)}</td>
-        <td>${esc(l.Utilisateur)}</td>
-        <td>${esc(l.Profil)}</td>
-        <td class="mono">${esc(l.Perimetre_financier)}</td>
-        <td class="mono">${esc(l.CFI)}</td>
-        <td>${esc(l.Date_MAJ)}</td>
-        <td class="mono">${esc(l.Heure_MAJ)}</td>
-        <td>${esc(l.Modifie_par)}</td>
-        <td></td>
-      </tr>`;
-    });
-    document.getElementById('preview-count').textContent = `${lignesBAL.length} ligne${lignesBAL.length>1?'s':''}`;
-    document.getElementById('preview-card').classList.add('visible');
-    document.getElementById('log-card').classList.add('visible');
-
-  } catch(err) {
-    addLog(`ERREUR : ${err.message || err}`, 'error');
-    showResult('error', 'Erreur lors de l\'extraction', esc(err.message || String(err)));
-    document.getElementById('log-card').classList.add('visible');
-  }
-
-  btn.disabled = false;
-}
-
-// ── UI HELPERS ───────────────────────────────────────────────────────────────
-function showResult(type, title, detail) {
-  const box = document.getElementById('result-box');
-  box.className = `result-box visible ${type}`;
-  document.getElementById('result-title').textContent  = title;
-  document.getElementById('result-detail').innerHTML   = detail;
-  document.getElementById('progress-box').classList.remove('visible');
 }
 
 // ── DIAGNOSTIC ───────────────────────────────────────────────────────────────
 async function runDiag() {
   const box = document.getElementById('diag-box');
-  box.style.display = 'block';
-  box.textContent = 'Chargement...';
+  box.classList.add('on');
+  box.textContent = 'Chargement de ZGDU…';
+  document.getElementById('result-box').classList.remove('on');
+
   try {
     const data = await grist.docApi.fetchTable('ZGDU');
-    const colKeys = Object.keys(data).filter(k => k !== 'id' && k !== 'manualSort');
-    const nRows = colKeys.length ? data[colKeys[0]].length : 0;
+    const allKeys = Object.keys(data);
+    const colKeys = allKeys.filter(k => k !== 'id' && k !== 'manualSort');
+    const nRows   = colKeys.length ? data[colKeys[0]].length : 0;
 
-    let out = '=== TABLE ZGDU ===
-';
-    out += 'Colonnes (' + colKeys.length + ') : ' + colKeys.join(', ') + '
-';
-    out += 'Nombre de lignes : ' + nRows + '
+    let out = '=== TABLE ZGDU ===\n';
+    out += 'Toutes les clés retournées : ' + allKeys.join(', ') + '\n';
+    out += 'Colonnes de données (' + colKeys.length + ') : ' + colKeys.join(', ') + '\n';
+    out += 'Lignes : ' + nRows + '\n\n';
 
-';
-
-    // Afficher les 15 premières lignes pour chaque colonne
-    out += '=== 15 PREMIERES LIGNES ===
-';
-    const maxShow = Math.min(15, nRows);
-    for (let i = 0; i < maxShow; i++) {
-      const vals = colKeys.map(k => JSON.stringify(data[k][i])).join(' | ');
-      out += 'L' + (i+1) + ': ' + vals + '
-';
+    out += '=== 20 PREMIERES LIGNES (brut) ===\n';
+    for (let i = 0; i < Math.min(20, nRows); i++) {
+      const vals = colKeys.map(k => k + '=' + JSON.stringify(data[k][i])).join('  |  ');
+      out += 'L' + (i+1) + ': ' + vals + '\n';
     }
 
-    // Valeurs uniques de chaque colonne (max 30)
-    out += '
-=== VALEURS UNIQUES PAR COLONNE (max 30) ===
-';
+    out += '\n=== VALEURS UNIQUES PAR COLONNE (max 40) ===\n';
     for (const col of colKeys) {
-      const uniq = [...new Set(data[col].map(v => String(v||'').trim()))].filter(v=>v).slice(0,30);
-      out += col + ': ' + uniq.join(', ') + '
-';
+      const uniq = [...new Set(data[col].map(v => JSON.stringify(v)))].slice(0, 40);
+      out += col + ' [' + data[col].length + ' vals] : ' + uniq.join(', ') + '\n';
     }
 
-    // Test regex YP_
-    out += '
-=== VALEURS MATCHANT YP_#### ===
-';
+    out += '\n=== RECHERCHE YP_ ===\n';
+    let foundYP = false;
     for (const col of colKeys) {
-      const matches = [...new Set(data[col].map(v=>String(v||'').trim()).filter(v=>/^YP_\d{4}$/.test(v)))];
-      if (matches.length) out += col + ': ' + matches.join(', ') + '
-';
+      const matches = data[col].filter(v => YP_RE.test(String(v||'').trim()));
+      if (matches.length) {
+        out += 'TROUVÉ dans "' + col + '" (' + matches.length + ') : ' + [...new Set(matches)].join(', ') + '\n';
+        foundYP = true;
+      }
+    }
+    if (!foundYP) {
+      out += 'Aucune valeur ne correspond à /^YP_\\d{4}$/\n';
+      out += 'Valeurs contenant "YP" : \n';
+      for (const col of colKeys) {
+        const near = data[col].filter(v => String(v||'').includes('YP'));
+        if (near.length) out += '  ' + col + ': ' + [...new Set(near)].slice(0,10).join(', ') + '\n';
+      }
     }
 
-    // Test roles requis
-    out += '
-=== VALEURS MATCHANT YC_ORDO_DELEGUE / YC_ORDO_GU ===
-';
+    out += '\n=== RECHERCHE YC_ORDO ===\n';
+    let foundOrdo = false;
     for (const col of colKeys) {
-      const d = data[col].filter(v=>String(v||'').includes('ORDO'));
-      if (d.length) out += col + ' (' + d.length + ' occurrences): ' + [...new Set(d)].join(', ') + '
-';
+      const matches = data[col].filter(v => String(v||'').includes('ORDO'));
+      if (matches.length) {
+        out += 'TROUVÉ dans "' + col + '" (' + matches.length + ') : ' + [...new Set(matches)].slice(0,10).join(', ') + '\n';
+        foundOrdo = true;
+      }
+    }
+    if (!foundOrdo) {
+      out += 'Aucune valeur contenant "ORDO"\n';
+      out += 'Valeurs contenant "YC" :\n';
+      for (const col of colKeys) {
+        const near = data[col].filter(v => String(v||'').includes('YC'));
+        if (near.length) out += '  ' + col + ': ' + [...new Set(near)].slice(0,10).join(', ') + '\n';
+      }
     }
 
     box.textContent = out;
+
   } catch(e) {
-    box.textContent = 'ERREUR : ' + (e.message || String(e));
+    box.textContent = 'ERREUR fetchTable("ZGDU") :\n' + (e.message || String(e)) + '\n\nStack:\n' + (e.stack||'');
   }
+}
+
+// ── EXTRACTION ───────────────────────────────────────────────────────────────
+async function runExtraction() {
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  document.getElementById('progress-box').classList.add('on');
+  document.getElementById('result-box').classList.remove('on');
+  document.getElementById('preview-card').classList.remove('on');
+  document.getElementById('diag-box').classList.remove('on');
+  document.getElementById('preview-tbody').innerHTML = '';
+
+  try {
+    // 1. Lire ZGDU
+    setProgress(10, 'Lecture de ZGDU…');
+    const data = await grist.docApi.fetchTable('ZGDU');
+    const colKeys = Object.keys(data).filter(k => k !== 'id' && k !== 'manualSort');
+    const nRows   = colKeys.length ? data[colKeys[0]].length : 0;
+    if (!nRows) throw new Error('La table ZGDU est vide.');
+
+    // Détecter colonne nom (B) et rôle (C)
+    // Heuristique : la colonne rôle contient des valeurs "YC_" ou "YP_"
+    let colNom = null, colRole = null;
+    for (const col of colKeys) {
+      const hasRole = data[col].some(v => /^Y[CP]_/.test(String(v||'').trim()));
+      if (hasRole && !colRole) colRole = col;
+    }
+    // Colonne nom = première colonne qui n'est pas colRole et a des chaînes non-vides
+    for (const col of colKeys) {
+      if (col === colRole) continue;
+      const hasText = data[col].some(v => typeof v === 'string' && v.trim().length > 0);
+      if (hasText && !colNom) colNom = col;
+    }
+    if (!colNom || !colRole) {
+      throw new Error(
+        `Impossible de détecter les colonnes Nom/Rôle.\n` +
+        `Colonnes disponibles : ${colKeys.join(', ')}\n` +
+        `Lancez le diagnostic pour inspecter la structure.`
+      );
+    }
+
+    // 2. Construire les dictionnaires
+    setProgress(30, 'Analyse des rôles et périmètres…');
+    const dictRoles = {};
+    const dictPerims = {};
+
+    for (let i = 0; i < nRows; i++) {
+      const nom  = String(data[colNom][i]  || '').trim();
+      const role = String(data[colRole][i] || '').trim();
+      if (!nom || !role) continue;
+      if (!dictRoles[nom]) { dictRoles[nom] = new Set(); dictPerims[nom] = new Set(); }
+      dictRoles[nom].add(role);
+      if (YP_RE.test(role)) dictPerims[nom].add(role);
+    }
+
+    // 3. Filtrer + construire lignes
+    setProgress(55, 'Filtrage des utilisateurs éligibles…');
+    const ts = new Date();
+    const lignesBAL = [], lignesLog = [];
+
+    for (const nom of Object.keys(dictRoles)) {
+      if (!ROLES_REQUIS.every(r => dictRoles[nom].has(r))) continue;
+      for (const perimetre of dictPerims[nom]) {
+        const p4 = perimetre.slice(3);
+        lignesBAL.push(['510', nom, 'GESTIONNAIRE', '5010', p4, fmtDate(ts), fmtTime(ts), currentUser, '']);
+        lignesLog.push([fmtDT(ts), nom, p4, 'Direct', p4, currentUser]);
+      }
+    }
+
+    if (!lignesBAL.length) {
+      showResult('warning', 'Aucune ligne à créer',
+        `Aucun utilisateur ne possède simultanément <code>YC_ORDO_DELEGUE</code> et <code>YC_ORDO_GU</code> avec un périmètre <code>YP_####</code>.<br>
+         Lancez le diagnostic pour vérifier la structure de ZGDU.`);
+      btn.disabled = false;
+      return;
+    }
+
+    // 4. Écrire BAL_SIFAC
+    setProgress(70, `Écriture de ${lignesBAL.length} lignes dans BAL_SIFAC…`);
+    const balColIds = ['Mandant','Utilisateur','Profil','Perimetre_financier','CFI','Date_MAJ','Heure_MAJ','Modifie_par','SAP_ALL'];
+    const balCols = {};
+    balColIds.forEach((c, ci) => { balCols[c] = lignesBAL.map(l => l[ci]); });
+    await grist.docApi.applyUserActions([
+      ['BulkAddRecord', 'BAL_SIFAC', new Array(lignesBAL.length).fill(null), balCols]
+    ]);
+
+    // 5. Écrire Log
+    setProgress(88, 'Écriture dans Log…');
+    const logColIds = ['Horodatage','Utilisateur','Perimetre','Source','Code','Operateur'];
+    const logCols = {};
+    logColIds.forEach((c, ci) => { logCols[c] = lignesLog.map(l => l[ci]); });
+    try {
+      await grist.docApi.applyUserActions([
+        ['BulkAddRecord', 'Log', new Array(lignesLog.length).fill(null), logCols]
+      ]);
+    } catch(e) {
+      // Créer la table Log si elle n'existe pas
+      await grist.docApi.applyUserActions([['AddTable', 'Log', [
+        {id:'Horodatage',  type:'Text'}, {id:'Utilisateur', type:'Text'},
+        {id:'Perimetre',   type:'Text'}, {id:'Source',      type:'Text'},
+        {id:'Code',        type:'Text'}, {id:'Operateur',   type:'Text'},
+      ]]]);
+      await grist.docApi.applyUserActions([
+        ['BulkAddRecord', 'Log', new Array(lignesLog.length).fill(null), logCols]
+      ]);
+    }
+
+    setProgress(100, 'Terminé.');
+    showResult('success',
+      `Extraction terminée — ${lignesBAL.length} ligne${lignesBAL.length > 1 ? 's' : ''} créée${lignesBAL.length > 1 ? 's' : ''}`,
+      `Opérateur : <code>${esc(currentUser)}</code> · colonnes lues : <code>${colNom}</code> (nom), <code>${colRole}</code> (rôle)`
+    );
+
+    // Aperçu
+    const tbody = document.getElementById('preview-tbody');
+    lignesBAL.forEach(l => {
+      tbody.innerHTML += `<tr>${l.map((v,i) => `<td class="${i===4||i===0?'mono':''}">${esc(v)}</td>`).join('')}</tr>`;
+    });
+    document.getElementById('preview-count').textContent = `${lignesBAL.length} ligne${lignesBAL.length>1?'s':''}`;
+    document.getElementById('preview-card').classList.add('on');
+
+  } catch(err) {
+    showResult('error', 'Erreur', esc(err.message || String(err)));
+  }
+
+  btn.disabled = false;
+}
+
+// ── HELPERS UI ───────────────────────────────────────────────────────────────
+function setProgress(pct, label) {
+  document.getElementById('progress-fill').style.width  = pct + '%';
+  document.getElementById('progress-label').textContent = label;
+}
+function showResult(type, title, detail) {
+  const box = document.getElementById('result-box');
+  box.className = 'result-box on ' + type;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-detail').innerHTML  = detail;
+  document.getElementById('progress-box').classList.remove('on');
 }
 </script>
 </body>
