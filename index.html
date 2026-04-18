@@ -139,6 +139,11 @@
   ▶ Lancer l'extraction
 </button>
 
+<button class="run-btn" onclick="runDiag()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);margin-bottom:6px">
+  🔍 Diagnostiquer la table ZGDU
+</button>
+<div id="diag-box" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;margin-bottom:14px;font-size:11px;font-family:monospace;white-space:pre-wrap;overflow-x:auto;max-height:400px;overflow-y:auto;color:var(--text)"></div>
+
 <!-- PROGRESS -->
 <div class="progress-box" id="progress-box">
   <div class="progress-label" id="progress-label">Lecture de ZGDU…</div>
@@ -478,6 +483,70 @@ function showResult(type, title, detail) {
   document.getElementById('result-title').textContent  = title;
   document.getElementById('result-detail').innerHTML   = detail;
   document.getElementById('progress-box').classList.remove('visible');
+}
+
+// ── DIAGNOSTIC ───────────────────────────────────────────────────────────────
+async function runDiag() {
+  const box = document.getElementById('diag-box');
+  box.style.display = 'block';
+  box.textContent = 'Chargement...';
+  try {
+    const data = await grist.docApi.fetchTable('ZGDU');
+    const colKeys = Object.keys(data).filter(k => k !== 'id' && k !== 'manualSort');
+    const nRows = colKeys.length ? data[colKeys[0]].length : 0;
+
+    let out = '=== TABLE ZGDU ===
+';
+    out += 'Colonnes (' + colKeys.length + ') : ' + colKeys.join(', ') + '
+';
+    out += 'Nombre de lignes : ' + nRows + '
+
+';
+
+    // Afficher les 15 premières lignes pour chaque colonne
+    out += '=== 15 PREMIERES LIGNES ===
+';
+    const maxShow = Math.min(15, nRows);
+    for (let i = 0; i < maxShow; i++) {
+      const vals = colKeys.map(k => JSON.stringify(data[k][i])).join(' | ');
+      out += 'L' + (i+1) + ': ' + vals + '
+';
+    }
+
+    // Valeurs uniques de chaque colonne (max 30)
+    out += '
+=== VALEURS UNIQUES PAR COLONNE (max 30) ===
+';
+    for (const col of colKeys) {
+      const uniq = [...new Set(data[col].map(v => String(v||'').trim()))].filter(v=>v).slice(0,30);
+      out += col + ': ' + uniq.join(', ') + '
+';
+    }
+
+    // Test regex YP_
+    out += '
+=== VALEURS MATCHANT YP_#### ===
+';
+    for (const col of colKeys) {
+      const matches = [...new Set(data[col].map(v=>String(v||'').trim()).filter(v=>/^YP_\d{4}$/.test(v)))];
+      if (matches.length) out += col + ': ' + matches.join(', ') + '
+';
+    }
+
+    // Test roles requis
+    out += '
+=== VALEURS MATCHANT YC_ORDO_DELEGUE / YC_ORDO_GU ===
+';
+    for (const col of colKeys) {
+      const d = data[col].filter(v=>String(v||'').includes('ORDO'));
+      if (d.length) out += col + ' (' + d.length + ' occurrences): ' + [...new Set(d)].join(', ') + '
+';
+    }
+
+    box.textContent = out;
+  } catch(e) {
+    box.textContent = 'ERREUR : ' + (e.message || String(e));
+  }
 }
 </script>
 </body>
