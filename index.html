@@ -107,6 +107,7 @@
 </div>
 
 <button class="btn btn-primary" id="run-btn" onclick="runExtraction()">▶ Lancer l'extraction</button>
+<div id="js-test" style="display:none;font-size:11px;color:var(--green);padding:4px 0">✓ JS opérationnel</div>
 <button class="btn btn-ghost"   id="diag-btn" onclick="runDiag()">🔍 Diagnostiquer ZGDU</button>
 
 <div class="progress-box" id="progress-box">
@@ -152,7 +153,7 @@ let currentUser = 'inconnu';
 
 // ── GRIST READY ──────────────────────────────────────────────────────────────
 // On attend que Grist confirme l'accès avant d'activer les boutons
-grist.ready({ requiredAccess: 'full' });
+grist.ready({ requiredAccess: 'full', allowSelectBy: false });
 
 // Tente getUserProfile() en silencieux pour pré-remplir l'opérateur
 (async () => {
@@ -291,8 +292,10 @@ async function runDiag() {
 
 // ── EXTRACTION ───────────────────────────────────────────────────────────────
 async function runExtraction() {
+  document.getElementById('js-test').style.display = 'block';
+
   // Vérifier que l'opérateur est renseigné
-  currentUser = document.getElementById('username-input').value.trim();
+  currentUser = (document.getElementById('username-input').value || '').trim();
   if (!currentUser) {
     showResult('error', 'Opérateur manquant', 'Veuillez saisir votre identifiant dans le champ Opérateur avant de lancer l'extraction.');
     return;
@@ -301,6 +304,9 @@ async function runExtraction() {
   const btn = document.getElementById('run-btn');
   btn.disabled = true;
   document.getElementById('progress-box').classList.add('on');
+  document.getElementById('result-box').classList.remove('on');
+  document.getElementById('preview-card').classList.remove('on');
+  document.getElementById('diag-box').classList.remove('on');
   document.getElementById('result-box').classList.remove('on');
   document.getElementById('preview-card').classList.remove('on');
   document.getElementById('diag-box').classList.remove('on');
