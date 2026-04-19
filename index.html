@@ -263,11 +263,16 @@ async function ecrire(lignes) {
     logC.push(l.cfi); logO.push(op);
   }
 
+  // Lecture des vrais IDs de colonnes BAL_SIFAC puis mapping positionnel
+  var balData = await grist.docApi.fetchTable('BAL_SIFAC');
+  var balCols = Object.keys(balData).filter(function(k){ return k!=='id'&&k!=='manualSort'; });
+  var balVals = [balA, balB, balC, balD2, balE2, balF2, balG2, balH2, balI];
+  var balPayload = {};
+  for (var bi = 0; bi < Math.min(balCols.length, balVals.length); bi++) {
+    balPayload[balCols[bi]] = balVals[bi];
+  }
   await grist.docApi.applyUserActions([['BulkAddRecord', 'BAL_SIFAC',
-    new Array(balA.length).fill(null), {
-      A:balA, B:balB, C:balC, D2:balD2, E2:balE2,
-      F2:balF2, G2:balG2, H2:balH2, I:balI
-    }
+    new Array(balA.length).fill(null), balPayload
   ]]);
 
   // Écriture Log : on lit d'abord les vrais IDs de colonnes puis mapping positionnel
