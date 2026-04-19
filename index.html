@@ -28,16 +28,7 @@ h1 { font-size: 17px; font-weight: 600; margin-bottom: 3px; }
 .row:last-child { margin-bottom: 0; }
 .lbl { color: var(--text2); font-size: 12px; min-width: 120px; }
 .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: var(--accent-bg); color: var(--accent); }
-.chip  { background: var(--accent-bg); border: 1px solid #b3c6f7; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-family: monospace; font-weight: 600; color: var(--accent); }
-.chip2 { background: #EDE9FE; border: 1px solid #c4b5fd; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-family: monospace; font-weight: 600; color: #6D28D9; }
-.btn-proc2 { background: #6D28D9; color: #fff; }
-.btn-proc2:hover { opacity: .88; }
-.tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 12px; }
-.tab  { padding: 7px 16px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text2); border-bottom: 3px solid transparent; margin-bottom: -2px; }
-.tab.t1.on { color: var(--accent);  border-bottom-color: var(--accent); }
-.tab.t2.on { color: #6D28D9; border-bottom-color: #6D28D9; }
-.proc { display: none; }
-.proc.on { display: block; }
+.chip { background: var(--accent-bg); border: 1px solid #b3c6f7; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-family: monospace; font-weight: 600; color: var(--accent); }
 
 input[type=text] { padding: 5px 9px; border: 1px solid var(--border); border-radius: var(--rs); font-size: 13px; background: var(--bg); color: var(--text); width: 240px; }
 input[type=text]:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
@@ -79,12 +70,7 @@ tr:hover td { background: var(--surface2); }
 <body>
 
 <h1>Extraction Périmètres ZGDU</h1>
-<p class="sub">Deux processus indépendants · écrit dans BAL_SIFAC et Log</p>
-
-<div class="tabs">
-  <div class="tab t1 on" onclick="switchTab(1)">① ORDO_GU</div>
-  <div class="tab t2"    onclick="switchTab(2)">② ORDO_GU_SDAR</div>
-</div>
+<p class="sub">Lit ZGDU · filtre YC_ORDO_DELEGUE + YC_ORDO_GU · écrit dans BAL_SIFAC et Log</p>
 
 <div class="card">
   <div class="card-title">Paramètres</div>
@@ -308,152 +294,6 @@ async function diagnostic() {
   } catch(e) { out += 'Log : absente ou erreur : ' + e.message + '\n'; }
 
   box.textContent = out;
-}
-
-function switchTab(n) {
-  document.getElementById('proc1').classList.toggle('on', n===1);
-  document.getElementById('proc2').classList.toggle('on', n===2);
-  document.querySelector('.tab.t1').classList.toggle('on', n===1);
-  document.querySelector('.tab.t2').classList.toggle('on', n===2);
-  // Masquer résultats sans effacer l'opérateur
-  document.getElementById('result').style.display  = 'none';
-  document.getElementById('preview').style.display = 'none';
-  document.getElementById('diag').style.display    = 'none';
-  document.getElementById('prog').style.display    = 'none';
-  document.getElementById('preview-body').innerHTML = '';
-}
-
-async function lancerProc2() {
-  // Réutilise le champ opérateur du processus 1
-  var op = document.getElementById('op').value.trim();
-  if (!op) {
-    showResult('error', 'Opérateur manquant', 'Veuillez saisir votre identifiant dans l'onglet Processus 1.');
-    return;
-  }
-
-  document.getElementById('result').style.display  = 'none';
-  document.getElementById('preview').style.display = 'none';
-  document.getElementById('diag').style.display    = 'none';
-  document.getElementById('preview-body').innerHTML = '';
-
-  try {
-    // 1. Lire ZGDU
-    setProgress(10, 'Lecture de ZGDU…');
-    var zgdu = await grist.docApi.fetchTable('ZGDU');
-    var nRows = zgdu['B'].length;
-
-    // 2. Construire dictionnaires (B=nom, C=role)
-    setProgress(20, 'Analyse des rôles…');
-    var roles = {}, perims = {};
-    for (var i = 0; i < nRows; i++) {
-      var nom  = String(zgdu['B'][i] || '').trim();
-      var role = String(zgdu['C'][i] || '').trim();
-      if (!nom || !role) continue;
-      if (!roles[nom]) { roles[nom] = {}; perims[nom] = {}; }
-      roles[nom][role] = true;
-      // YP_* sauf YP_TECH_*
-      if (/^YP_/.test(role) && !/^YP_TECH_/.test(role)) {
-        perims[nom][role] = true;
-      }
-    }
-
-    // 3. Lire table SDAR (ligne 0 = codes, ligne 1 = valeurs)
-    setProgress(35, 'Lecture de la table SDAR…');
-    var sdarMap = {};
-    var sdar = await grist.docApi.fetchTable('SDAR');
-    var sCols = Object.keys(sdar).filter(function(k){ return k!=='id'&&k!=='manualSort'; });
-    for (var ci = 0; ci < sCols.length; ci++) {
-      var code   = String(sdar[sCols[ci]][0] || '').trim();
-      var valeur = String(sdar[sCols[ci]][1] || '').trim();
-      if (code) sdarMap[code] = valeur;
-    }
-
-    // 4. Filtrer et construire lignes
-    setProgress(55, 'Filtrage des utilisateurs éligibles…');
-    var ts = new Date();
-    var date = fmtDate(ts), time = fmtTime(ts);
-    var balA=[],balB=[],balC=[],balD2=[],balE2=[],balF2=[],balG2=[],balH2=[],balI=[];
-    var logH=[],logU=[],logP=[],logS=[],logC=[],logO=[];
-    var roles2 = ['YC_ORDO_DELEGUE','YC_ORDO_GU_SDAR'];
-
-    for (var nom in roles) {
-      if (!roles2.every(function(r){ return roles[nom][r]; })) continue;
-      for (var p in perims[nom]) {
-        var pCode = p.slice(3); // tout après YP_
-        var cfi, statut;
-        if (/^\d{4}$/.test(pCode)) {
-          cfi = pCode; statut = 'Direct';
-        } else if (sdarMap[pCode] !== undefined && sdarMap[pCode] !== '') {
-          cfi = sdarMap[pCode]; statut = 'Trouvé SDAR';
-        } else {
-          cfi = ''; statut = 'Non trouvé';
-        }
-        balA.push('510'); balB.push(nom); balC.push('GESTIONNAIRE');
-        balD2.push('5010'); balE2.push(cfi);
-        balF2.push(date); balG2.push(time);
-        balH2.push(op); balI.push('');
-        logH.push(date+' '+time); logU.push(nom);
-        logP.push(pCode); logS.push(statut);
-        logC.push(cfi); logO.push(op);
-      }
-    }
-
-    if (!balA.length) {
-      showResult('warning', 'Aucune ligne à créer', 'Aucun utilisateur éligible pour le processus 2.');
-      return;
-    }
-
-    // 5. Écrire BAL_SIFAC (mêmes colonnes que processus 1)
-    setProgress(70, 'Écriture de ' + balA.length + ' lignes dans BAL_SIFAC…');
-    await grist.docApi.applyUserActions([['BulkAddRecord', 'BAL_SIFAC',
-      new Array(balA.length).fill(null), {
-        A: balA, B: balB, C: balC, D2: balD2, E2: balE2,
-        F2: balF2, G2: balG2, H2: balH2, I: balI
-      }
-    ]]);
-
-    // 6. Écrire Log (mêmes colonnes que processus 1)
-    setProgress(88, 'Écriture dans Log…');
-    try {
-      await grist.docApi.applyUserActions([['BulkAddRecord', 'Log',
-        new Array(logH.length).fill(null), {
-          Horodatage: logH, Utilisateur: logU, Perimetre: logP,
-          Source: logS, Code: logC, Operateur: logO
-        }
-      ]]);
-    } catch(e) {
-      await grist.docApi.applyUserActions([['AddTable', 'Log', [
-        {id:'Horodatage',type:'Text'},{id:'Utilisateur',type:'Text'},
-        {id:'Perimetre',type:'Text'},{id:'Source',type:'Text'},
-        {id:'Code',type:'Text'},{id:'Operateur',type:'Text'}
-      ]]]);
-      await grist.docApi.applyUserActions([['BulkAddRecord', 'Log',
-        new Array(logH.length).fill(null), {
-          Horodatage: logH, Utilisateur: logU, Perimetre: logP,
-          Source: logS, Code: logC, Operateur: logO
-        }
-      ]]);
-    }
-
-    // 7. Résultat
-    var nonTrouves = logS.filter(function(s){ return s==='Non trouvé'; }).length;
-    var msg = 'Opérateur : <code>' + esc(op) + '</code> · BAL_SIFAC et Log mis à jour.';
-    if (nonTrouves) msg += ' · <span style="color:var(--amber)">' + nonTrouves + ' périmètre(s) non trouvé(s) dans SDAR</span>';
-    showResult('success',
-      'Processus 2 terminé — ' + balA.length + ' ligne' + (balA.length>1?'s':'') + ' créée' + (balA.length>1?'s':''),
-      msg
-    );
-
-    var tbody = document.getElementById('preview-body');
-    for (var k = 0; k < balA.length; k++) {
-      tbody.innerHTML += '<tr><td>' + [balA[k],balB[k],balC[k],balD2[k],balE2[k],balF2[k],balG2[k],balH2[k],balI[k]].map(esc).join('</td><td>') + '</td></tr>';
-    }
-    document.getElementById('preview-count').textContent = balA.length + ' ligne' + (balA.length>1?'s':'');
-    document.getElementById('preview').style.display = 'block';
-
-  } catch(e) {
-    showResult('error', 'Erreur processus 2', esc(e.message || String(e)));
-  }
 }
 </script>
 </body>
