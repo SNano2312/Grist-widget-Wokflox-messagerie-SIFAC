@@ -6,120 +6,93 @@
 <title>Extraction Périmètres ZGDU</title>
 <script src="https://docs.getgrist.com/grist-plugin-api.js" onerror="console.warn('grist-plugin-api non chargé')">
 function switchTab(n) {
-  document.getElementById('proc1').style.display = n===1 ? 'block' : 'none';
-  document.getElementById('proc2').style.display = n===2 ? 'block' : 'none';
-  document.getElementById('tab1').className = 'tab' + (n===1 ? ' on1' : '');
-  document.getElementById('tab2').className = 'tab' + (n===2 ? ' on2' : '');
-  document.getElementById('result').style.display  = 'none';
-  document.getElementById('preview').style.display = 'none';
-  document.getElementById('diag').style.display    = 'none';
-  document.getElementById('prog').style.display    = 'none';
-  document.getElementById('preview-body').innerHTML = '';
+  document.getElementById("proc1").style.display = (n===1) ? "block" : "none";
+  document.getElementById("proc2").style.display = (n===2) ? "block" : "none";
+  document.getElementById("tab1").className = "tab" + (n===1 ? " on1" : "");
+  document.getElementById("tab2").className = "tab" + (n===2 ? " on2" : "");
+  document.getElementById("result").style.display  = "none";
+  document.getElementById("preview").style.display = "none";
+  document.getElementById("diag").style.display    = "none";
+  document.getElementById("prog").style.display    = "none";
+  document.getElementById("preview-body").innerHTML = "";
 }
 
 async function lancerProc2() {
-  var op = document.getElementById('op').value.trim();
-  if (!op) {
-    showResult('error', 'Opérateur manquant', "Veuillez saisir votre identifiant dans l'onglet \u2460.");
-    return;
-  }
-  document.getElementById('result').style.display  = 'none';
-  document.getElementById('preview').style.display = 'none';
-  document.getElementById('diag').style.display    = 'none';
-  document.getElementById('preview-body').innerHTML = '';
-
+  var op = document.getElementById("op").value.trim();
+  if (!op) { showResult("error","Operateur manquant","Saisissez votre identifiant dans l'onglet 1."); return; }
+  document.getElementById("result").style.display  = "none";
+  document.getElementById("preview").style.display = "none";
+  document.getElementById("diag").style.display    = "none";
+  document.getElementById("preview-body").innerHTML = "";
   try {
-    // 1. ZGDU
-    setProgress(10, 'Lecture de ZGDU...');
-    var zgdu = await grist.docApi.fetchTable('ZGDU');
-    var nRows = zgdu['B'].length;
-
-    // 2. Dictionnaires
-    setProgress(25, 'Analyse des roles...');
-    var r2 = {}, p2 = {};
-    for (var i = 0; i < nRows; i++) {
-      var nom  = String(zgdu['B'][i] || '').trim();
-      var role = String(zgdu['C'][i] || '').trim();
-      if (!nom || !role) continue;
-      if (!r2[nom]) { r2[nom] = {}; p2[nom] = {}; }
-      r2[nom][role] = true;
-      if (/^YP_/.test(role) && !/^YP_TECH_/.test(role)) p2[nom][role] = true;
+    setProgress(10,"Lecture ZGDU...");
+    var zgdu = await grist.docApi.fetchTable("ZGDU");
+    var nR = zgdu["B"].length, r2={}, p2={};
+    setProgress(25,"Analyse roles...");
+    for (var i=0; i<nR; i++) {
+      var nom=String(zgdu["B"][i]||"").trim(), role=String(zgdu["C"][i]||"").trim();
+      if (!nom||!role) continue;
+      if (!r2[nom]) { r2[nom]={}; p2[nom]={}; }
+      r2[nom][role]=true;
+      if (/^YP_/.test(role) && !/^YP_TECH_/.test(role)) p2[nom][role]=true;
     }
-
-    // 3. SDAR : col[0]=code, col[1]=valeur
-    setProgress(40, 'Lecture de SDAR...');
-    var smap = {};
-    var sdar = await grist.docApi.fetchTable('SDAR');
-    var sc = Object.keys(sdar).filter(function(k){ return k!=='id'&&k!=='manualSort'; });
-    for (var ci = 0; ci < sc.length; ci++) {
-      var code = String(sdar[sc[ci]][0]||'').trim();
-      var val  = String(sdar[sc[ci]][1]||'').trim();
-      if (code) smap[code] = val;
+    setProgress(40,"Lecture SDAR...");
+    var smap={}, sdar=await grist.docApi.fetchTable("SDAR");
+    var sc=Object.keys(sdar).filter(function(k){return k!=="id"&&k!=="manualSort";});
+    for (var ci=0; ci<sc.length; ci++) {
+      var code=String(sdar[sc[ci]][0]||"").trim(), val=String(sdar[sc[ci]][1]||"").trim();
+      if (code) smap[code]=val;
     }
-
-    // 4. Lignes
-    setProgress(55, 'Filtrage...');
-    var ts = new Date(), date = fmtDate(ts), time = fmtTime(ts);
+    setProgress(55,"Filtrage...");
+    var ts=new Date(), date=fmtDate(ts), time=fmtTime(ts);
     var bA=[],bB=[],bC=[],bD2=[],bE2=[],bF2=[],bG2=[],bH2=[],bI=[];
     var lH=[],lU=[],lP=[],lS=[],lC=[],lO=[];
-    var R2 = ['YC_ORDO_DELEGUE','YC_ORDO_GU_SDAR'];
-
+    var R2=["YC_ORDO_DELEGUE","YC_ORDO_GU_SDAR"];
     for (var nom in r2) {
-      if (!R2.every(function(r){ return r2[nom][r]; })) continue;
+      if (!R2.every(function(r){return r2[nom][r];})) continue;
       for (var p in p2[nom]) {
-        var pc = p.slice(3), cfi, st;
-        if (/^\d{4}$/.test(pc))                          { cfi=pc;        st='Direct';      }
-        else if (smap[pc]!==undefined && smap[pc]!=='')  { cfi=smap[pc];  st='Trouve SDAR'; }
-        else                                              { cfi='';        st='Non trouve';  }
-        bA.push('510'); bB.push(nom); bC.push('GESTIONNAIRE');
-        bD2.push('5010'); bE2.push(cfi);
-        bF2.push(date); bG2.push(time); bH2.push(op); bI.push('');
-        lH.push(date+' '+time); lU.push(nom); lP.push(pc);
-        lS.push(st); lC.push(cfi); lO.push(op);
+        var pc=p.slice(3), cfi, st;
+        if (/^\d{4}$/.test(pc))                        { cfi=pc;       st="Direct";      }
+        else if (smap[pc]!==undefined&&smap[pc]!=="")  { cfi=smap[pc]; st="Trouve SDAR"; }
+        else                                            { cfi="";       st="Non trouve";  }
+        bA.push("510"); bB.push(nom); bC.push("GESTIONNAIRE");
+        bD2.push("5010"); bE2.push(cfi); bF2.push(date); bG2.push(time); bH2.push(op); bI.push("");
+        lH.push(date+" "+time); lU.push(nom); lP.push(pc); lS.push(st); lC.push(cfi); lO.push(op);
       }
     }
-
-    if (!bA.length) { showResult('warning','Aucune ligne','Aucun utilisateur éligible pour le processus 2.'); return; }
-
-    // 5. BAL_SIFAC (identique proc 1)
-    setProgress(70, 'Ecriture BAL_SIFAC...');
-    await grist.docApi.applyUserActions([['BulkAddRecord','BAL_SIFAC',
+    if (!bA.length) { showResult("warning","Aucune ligne","Aucun utilisateur eligible processus 2."); return; }
+    setProgress(70,"Ecriture BAL_SIFAC...");
+    await grist.docApi.applyUserActions([["BulkAddRecord","BAL_SIFAC",
       new Array(bA.length).fill(null),
       {A:bA,B:bB,C:bC,D2:bD2,E2:bE2,F2:bF2,G2:bG2,H2:bH2,I:bI}
     ]]);
-
-    // 6. Log (identique proc 1)
-    setProgress(88, 'Ecriture Log...');
+    setProgress(88,"Ecriture Log...");
     try {
-      await grist.docApi.applyUserActions([['BulkAddRecord','Log',
+      await grist.docApi.applyUserActions([["BulkAddRecord","Log",
         new Array(lH.length).fill(null),
         {Horodatage:lH,Utilisateur:lU,Perimetre:lP,Source:lS,Code:lC,Operateur:lO}
       ]]);
-    } catch(e) {
-      await grist.docApi.applyUserActions([['AddTable','Log',[
-        {id:'Horodatage',type:'Text'},{id:'Utilisateur',type:'Text'},
-        {id:'Perimetre',type:'Text'},{id:'Source',type:'Text'},
-        {id:'Code',type:'Text'},{id:'Operateur',type:'Text'}
+    } catch(e2) {
+      await grist.docApi.applyUserActions([["AddTable","Log",[
+        {id:"Horodatage",type:"Text"},{id:"Utilisateur",type:"Text"},
+        {id:"Perimetre",type:"Text"},{id:"Source",type:"Text"},
+        {id:"Code",type:"Text"},{id:"Operateur",type:"Text"}
       ]]]);
-      await grist.docApi.applyUserActions([['BulkAddRecord','Log',
+      await grist.docApi.applyUserActions([["BulkAddRecord","Log",
         new Array(lH.length).fill(null),
         {Horodatage:lH,Utilisateur:lU,Perimetre:lP,Source:lS,Code:lC,Operateur:lO}
       ]]);
     }
-
-    var nt = lS.filter(function(s){return s==='Non trouve';}).length;
-    var msg = 'Opérateur : <code>'+esc(op)+'</code> · BAL_SIFAC et Log mis à jour.';
-    if (nt) msg += ' · <span style="color:var(--amber)">'+nt+' périmètre(s) non trouvé(s) dans SDAR</span>';
-    showResult('success','Processus 2 terminé — '+bA.length+' ligne'+(bA.length>1?'s':'')+' créée'+(bA.length>1?'s':''), msg);
-
-    var tb = document.getElementById('preview-body');
-    for (var k=0;k<bA.length;k++) {
-      tb.innerHTML += '<tr><td>'+[bA[k],bB[k],bC[k],bD2[k],bE2[k],bF2[k],bG2[k],bH2[k],bI[k]].map(esc).join('</td><td>')+'</td></tr>';
-    }
-    document.getElementById('preview-count').textContent = bA.length+' ligne'+(bA.length>1?'s':'');
-    document.getElementById('preview').style.display = 'block';
-
-  } catch(e) { showResult('error','Erreur processus 2',esc(e.message||String(e))); }
+    var nt=lS.filter(function(s){return s==="Non trouve";}).length;
+    var msg="Operateur : <code>"+esc(op)+"</code> - BAL_SIFAC et Log mis a jour.";
+    if (nt) msg+=" - <span style=\"color:var(--amber)\">"+nt+" perimetre(s) non trouve(s) dans SDAR</span>";
+    showResult("success","Processus 2 - "+bA.length+" ligne"+(bA.length>1?"s":"")+" creee"+(bA.length>1?"s":""),msg);
+    var tb=document.getElementById("preview-body");
+    for (var k=0;k<bA.length;k++)
+      tb.innerHTML+="<tr><td>"+[bA[k],bB[k],bC[k],bD2[k],bE2[k],bF2[k],bG2[k],bH2[k],bI[k]].map(esc).join("</td><td>")+"</td></tr>";
+    document.getElementById("preview-count").textContent=bA.length+" ligne"+(bA.length>1?"s":"");
+    document.getElementById("preview").style.display="block";
+  } catch(e) { showResult("error","Erreur processus 2",esc(e.message||String(e))); }
 }
 </script>
 <style>
@@ -189,7 +162,6 @@ tr:hover td { background: var(--surface2); }
 .tab{padding:7px 16px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);border-bottom:3px solid transparent;margin-bottom:-2px;}
 .tab.on1{color:var(--accent);border-bottom-color:var(--accent);}
 .tab.on2{color:#6D28D9;border-bottom-color:#6D28D9;}
-#proc2{display:none;}
 </style>
 </head>
 <body>
@@ -198,7 +170,7 @@ tr:hover td { background: var(--surface2); }
 <p class="sub">Deux processus indépendants · BAL_SIFAC et Log</p>
 <div class="tabs">
   <div class="tab on1" id="tab1" onclick="switchTab(1)">① ORDO_GU</div>
-  <div class="tab"     id="tab2" onclick="switchTab(2)">② ORDO_GU_SDAR</div>
+  <div class="tab" id="tab2" onclick="switchTab(2)">② ORDO_GU_SDAR</div>
 </div>
 <div id="proc1">
 
@@ -210,26 +182,23 @@ tr:hover td { background: var(--surface2); }
   <div class="row"><span class="lbl">Périm. financier</span><span class="badge">5010</span></div>
   <div class="row">
     <span class="lbl">Opérateur</span>
-    <input type="text" id="op" placeholder="Votre identifiant (ex: FMARTIN)" oninput="saveOp()">
+    <input type="text" id="op" placeholder="Votre identifiant (ex: FMARTIN)">
   </div>
 </div>
 
 <button class="btn btn-primary" onclick="lancer()">▶ Lancer le processus 1</button>
 </div>
-
-<div id="proc2">
+<div id="proc2" style="display:none">
 <div class="card">
   <div class="card-title">Paramètres — Processus 2</div>
   <div class="row"><span class="lbl">Rôles requis</span><span class="chip2">YC_ORDO_DELEGUE</span>&nbsp;<span class="chip2">YC_ORDO_GU_SDAR</span></div>
-  <div class="row"><span class="lbl">Périmètres</span><span style="font-size:12px;color:var(--text2)">Tous <code style="background:var(--surface2);padding:0 3px;border-radius:3px;font-size:11px;font-family:monospace">YP_*</code> sauf <code style="background:var(--surface2);padding:0 3px;border-radius:3px;font-size:11px;font-family:monospace">YP_TECH_*</code></span></div>
-  <div class="row"><span class="lbl">Résolution</span><span style="font-size:12px;color:var(--text2)">4 chiffres → direct · sinon → lookup table SDAR</span></div>
+  <div class="row"><span class="lbl">Périmètres</span><span style="font-size:12px;color:var(--text2)">Tous YP_* sauf YP_TECH_* · 4 chiffres=direct · sinon lookup SDAR</span></div>
   <div class="row"><span class="lbl">Mandant</span><span class="badge">510</span></div>
   <div class="row"><span class="lbl">Profil</span><span class="badge">GESTIONNAIRE</span></div>
   <div class="row"><span class="lbl">Périm. financier</span><span class="badge">5010</span></div>
 </div>
 <button class="btn btn-p2" onclick="lancerProc2()">▶ Lancer le processus 2</button>
 </div>
-
 <button class="btn btn-ghost" onclick="diagnostic()">🔍 Diagnostiquer les tables</button>
 
 <div class="progress-box" id="prog">
@@ -266,19 +235,6 @@ if (typeof grist === 'undefined') {
 }
 
 grist.ready({ requiredAccess: 'full' });
-
-// Restaure l'operateur sauvegarde si le widget se recharge
-grist.onOptions(function(opts) {
-  if (opts && opts.op) {
-    document.getElementById('op').value = opts.op;
-  }
-});
-
-// Sauvegarde l'operateur dans les options du widget
-function saveOp() {
-  var val = document.getElementById('op').value.trim();
-  try { grist.setOptions({ op: val }); } catch(e) {}
-}
 
 var YP_RE = /^YP_\d{4}$/;
 var ROLES  = ['YC_ORDO_DELEGUE', 'YC_ORDO_GU'];
