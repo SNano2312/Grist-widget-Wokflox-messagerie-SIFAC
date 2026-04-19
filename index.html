@@ -8,85 +8,136 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #F7F6F2; --surface: #fff; --surface2: #F0EEE8;
-  --border: #E2DFD8; --text: #1A1916; --text2: #6B6860; --text3: #A8A49C;
-  --accent: #2D5BE3; --accent-bg: #EBF0FD;
-  --green: #1A7A4A; --green-bg: #E6F4ED;
-  --red: #C53030; --red-bg: #FEF2F2;
-  --amber: #B45309; --amber-bg: #FFFBEB;
-  --r: 10px; --rs: 6px;
+  --bg:#F7F6F2; --surface:#fff; --surface2:#F0EEE8;
+  --border:#E2DFD8; --text:#1A1916; --text2:#6B6860; --text3:#A8A49C;
+  --accent:#2D5BE3; --accent-bg:#EBF0FD;
+  --green:#1A7A4A; --green-bg:#E6F4ED;
+  --red:#C53030; --red-bg:#FEF2F2;
+  --amber:#B45309; --amber-bg:#FFFBEB;
+  --purple:#6D28D9; --purple-bg:#EDE9FE;
+  --r:10px; --rs:6px;
 }
-body { font-family: -apple-system, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 16px; font-size: 14px; line-height: 1.5; }
+body { font-family:-apple-system,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); padding:16px; font-size:14px; line-height:1.5; }
 
-h1 { font-size: 17px; font-weight: 600; margin-bottom: 3px; }
-.sub { font-size: 12px; color: var(--text2); margin-bottom: 16px; }
+h1 { font-size:17px; font-weight:600; margin-bottom:3px; }
+.sub { font-size:12px; color:var(--text2); margin-bottom:16px; }
 
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 13px 15px; margin-bottom: 12px; }
-.card-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--text3); margin-bottom: 10px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:13px 15px; margin-bottom:12px; }
+.card-title { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--text3); margin-bottom:10px; }
 
-.row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; font-size: 13px; }
-.row:last-child { margin-bottom: 0; }
-.lbl { color: var(--text2); font-size: 12px; min-width: 120px; }
-.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: var(--accent-bg); color: var(--accent); }
-.chip { background: var(--accent-bg); border: 1px solid #b3c6f7; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-family: monospace; font-weight: 600; color: var(--accent); }
+.row { display:flex; align-items:center; gap:10px; margin-bottom:7px; font-size:13px; }
+.row:last-child { margin-bottom:0; }
+.lbl { color:var(--text2); font-size:12px; min-width:120px; }
+.badge  { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; background:var(--accent-bg); color:var(--accent); }
+.chip   { background:var(--accent-bg); border:1px solid #b3c6f7; border-radius:4px; padding:2px 8px; font-size:11px; font-family:monospace; font-weight:600; color:var(--accent); }
+.chip-p { background:var(--purple-bg); border:1px solid #c4b5fd; border-radius:4px; padding:2px 8px; font-size:11px; font-family:monospace; font-weight:600; color:var(--purple); }
 
-input[type=text] { padding: 5px 9px; border: 1px solid var(--border); border-radius: var(--rs); font-size: 13px; background: var(--bg); color: var(--text); width: 240px; }
-input[type=text]:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+input[type=text] { padding:5px 9px; border:1px solid var(--border); border-radius:var(--rs); font-size:13px; background:var(--bg); color:var(--text); width:240px; }
+input[type=text]:focus { outline:2px solid var(--accent); border-color:var(--accent); }
 
-.btn { display: block; width: 100%; padding: 11px; border: none; border-radius: var(--r); font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 8px; }
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:hover { opacity: .88; }
-.btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-.btn-ghost:hover { background: var(--border); }
+/* PROCESS TABS */
+.tabs { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:14px; }
+.tab  { padding:8px 16px; font-size:13px; font-weight:500; cursor:pointer; color:var(--text2); border-bottom:3px solid transparent; margin-bottom:-2px; transition:all .15s; }
+.tab:hover { color:var(--text); }
+.tab.active-blue   { color:var(--accent);  border-bottom-color:var(--accent); }
+.tab.active-purple { color:var(--purple); border-bottom-color:var(--purple); }
 
-.progress-box { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 15px; margin-bottom: 12px; }
-.progress-lbl { font-size: 12px; color: var(--text2); margin-bottom: 7px; }
-.track { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
-.fill  { height: 100%; border-radius: 3px; background: var(--accent); width: 0; transition: width .25s; }
+.process { display:none; }
+.process.active { display:block; }
 
-.result-box { display: none; border-radius: var(--r); padding: 12px 15px; margin-bottom: 12px; }
-.result-box h3 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
-.result-box p  { font-size: 12px; color: var(--text2); line-height: 1.6; }
-.result-box code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
-.success { background: var(--green-bg); border: 1px solid #86efac; }
-.success h3 { color: var(--green); }
-.error   { background: var(--red-bg);   border: 1px solid #fca5a5; }
-.error   h3 { color: var(--red); }
-.warning { background: var(--amber-bg); border: 1px solid #fcd34d; }
-.warning h3 { color: var(--amber); }
+/* BUTTONS */
+.btn { display:block; width:100%; padding:11px; border:none; border-radius:var(--r); font-size:13px; font-weight:600; cursor:pointer; margin-bottom:8px; }
+.btn-blue   { background:var(--accent); color:#fff; }
+.btn-blue:hover   { opacity:.88; }
+.btn-purple { background:var(--purple); color:#fff; }
+.btn-purple:hover { opacity:.88; }
+.btn-ghost  { background:var(--surface2); color:var(--text); border:1px solid var(--border); }
+.btn-ghost:hover  { background:var(--border); }
 
-.preview { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 12px; }
-.preview-head { display: flex; align-items: center; justify-content: space-between; padding: 9px 13px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--text3); }
-.preview-scroll { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-th { background: var(--surface2); color: var(--text3); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; padding: 5px 9px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
-td { padding: 4px 9px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: var(--surface2); }
+/* PROGRESS */
+.progress-box { display:none; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:12px 15px; margin-bottom:12px; }
+.progress-lbl { font-size:12px; color:var(--text2); margin-bottom:7px; }
+.track { height:5px; background:var(--surface2); border-radius:3px; overflow:hidden; }
+.fill  { height:100%; border-radius:3px; background:var(--accent); width:0; transition:width .25s; }
 
-.diag { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 13px 15px; font-size: 11px; font-family: monospace; white-space: pre-wrap; overflow: auto; max-height: 400px; line-height: 1.6; }
+/* RESULT */
+.result-box { display:none; border-radius:var(--r); padding:12px 15px; margin-bottom:12px; }
+.result-box h3 { font-size:13px; font-weight:600; margin-bottom:4px; }
+.result-box p  { font-size:12px; color:var(--text2); line-height:1.6; }
+.result-box code { background:rgba(0,0,0,.06); padding:1px 5px; border-radius:3px; font-size:11px; }
+.success { background:var(--green-bg);  border:1px solid #86efac; }
+.success h3 { color:var(--green); }
+.error   { background:var(--red-bg);    border:1px solid #fca5a5; }
+.error   h3 { color:var(--red); }
+.warning { background:var(--amber-bg);  border:1px solid #fcd34d; }
+.warning h3 { color:var(--amber); }
+
+/* PREVIEW */
+.preview { display:none; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; margin-bottom:12px; }
+.preview-head { display:flex; align-items:center; justify-content:space-between; padding:9px 13px; background:var(--surface2); border-bottom:1px solid var(--border); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--text3); }
+.preview-scroll { overflow-x:auto; max-height:300px; overflow-y:auto; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { background:var(--surface2); color:var(--text3); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.4px; padding:5px 9px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; position:sticky; top:0; }
+td { padding:4px 9px; border-bottom:1px solid var(--border); white-space:nowrap; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:var(--surface2); }
+.not-found { color:var(--red); font-style:italic; }
+
+/* DIAG */
+.diag { display:none; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:13px 15px; font-size:11px; font-family:monospace; white-space:pre-wrap; overflow:auto; max-height:400px; line-height:1.6; }
 </style>
 </head>
 <body>
 
 <h1>Extraction Périmètres ZGDU</h1>
-<p class="sub">Lit ZGDU · filtre YC_ORDO_DELEGUE + YC_ORDO_GU · écrit dans BAL_SIFAC et Log</p>
+<p class="sub">Deux processus indépendants · BAL_SIFAC et Log mis à jour à chaque exécution</p>
 
+<!-- OPÉRATEUR (commun aux deux processus) -->
 <div class="card">
-  <div class="card-title">Paramètres</div>
-  <div class="row"><span class="lbl">Rôles requis</span><span class="chip">YC_ORDO_DELEGUE</span>&nbsp;<span class="chip">YC_ORDO_GU</span></div>
-  <div class="row"><span class="lbl">Mandant</span><span class="badge">510</span></div>
-  <div class="row"><span class="lbl">Profil</span><span class="badge">GESTIONNAIRE</span></div>
-  <div class="row"><span class="lbl">Périm. financier</span><span class="badge">5010</span></div>
+  <div class="card-title">Opérateur</div>
   <div class="row">
-    <span class="lbl">Opérateur</span>
+    <span class="lbl">Identifiant</span>
     <input type="text" id="op" placeholder="Votre identifiant (ex: FMARTIN)">
   </div>
 </div>
 
-<button class="btn btn-primary" id="btn-run"  onclick="lancer()">▶ Lancer l'extraction</button>
-<button class="btn btn-ghost"   id="btn-diag" onclick="diagnostic()">🔍 Diagnostiquer ZGDU</button>
+<!-- ONGLETS -->
+<div class="tabs">
+  <div class="tab active-blue"   id="tab1" onclick="switchTab(1)">① ORDO_GU</div>
+  <div class="tab"               id="tab2" onclick="switchTab(2)">② ORDO_GU_SDAR</div>
+</div>
 
+<!-- PROCESSUS 1 -->
+<div class="process active" id="proc1">
+  <div class="card">
+    <div class="card-title">Conditions — Processus 1</div>
+    <div class="row"><span class="lbl">Rôles requis</span><span class="chip">YC_ORDO_DELEGUE</span>&nbsp;<span class="chip">YC_ORDO_GU</span></div>
+    <div class="row"><span class="lbl">Périmètres</span><span style="font-size:12px;color:var(--text2)">Format <code style="background:var(--surface2);padding:0 4px;border-radius:3px;font-family:monospace;font-size:11px">YP_####</code> (4 chiffres exactement)</span></div>
+    <div class="row"><span class="lbl">Mandant</span><span class="badge">510</span></div>
+    <div class="row"><span class="lbl">Profil</span><span class="badge">GESTIONNAIRE</span></div>
+    <div class="row"><span class="lbl">Périm. financier</span><span class="badge">5010</span></div>
+  </div>
+  <button class="btn btn-blue" onclick="lancerProc1()">▶ Lancer le processus 1</button>
+</div>
+
+<!-- PROCESSUS 2 -->
+<div class="process" id="proc2">
+  <div class="card">
+    <div class="card-title">Conditions — Processus 2</div>
+    <div class="row"><span class="lbl">Rôles requis</span><span class="chip-p">YC_ORDO_DELEGUE</span>&nbsp;<span class="chip-p">YC_ORDO_GU_SDAR</span></div>
+    <div class="row"><span class="lbl">Périmètres</span><span style="font-size:12px;color:var(--text2)">Tous <code style="background:var(--surface2);padding:0 4px;border-radius:3px;font-family:monospace;font-size:11px">YP_*</code> sauf <code style="background:var(--surface2);padding:0 4px;border-radius:3px;font-family:monospace;font-size:11px">YP_TECH_*</code></span></div>
+    <div class="row"><span class="lbl">Résolution</span><span style="font-size:12px;color:var(--text2)">4 chiffres → direct · sinon → lookup table <code style="background:var(--surface2);padding:0 4px;border-radius:3px;font-family:monospace;font-size:11px">SDAR</code></span></div>
+    <div class="row"><span class="lbl">Mandant</span><span class="badge" style="background:var(--purple-bg);color:var(--purple)">510</span></div>
+    <div class="row"><span class="lbl">Profil</span><span class="badge" style="background:var(--purple-bg);color:var(--purple)">GESTIONNAIRE</span></div>
+    <div class="row"><span class="lbl">Périm. financier</span><span class="badge" style="background:var(--purple-bg);color:var(--purple)">5010</span></div>
+  </div>
+  <button class="btn btn-purple" onclick="lancerProc2()">▶ Lancer le processus 2</button>
+</div>
+
+<!-- DIAGNOSTIC (commun) -->
+<button class="btn btn-ghost" onclick="diagnostic()">🔍 Diagnostiquer les tables</button>
+
+<!-- ZONE COMMUNE : progress, résultat, aperçu, diag -->
 <div class="progress-box" id="prog">
   <div class="progress-lbl" id="prog-lbl">…</div>
   <div class="track"><div class="fill" id="prog-fill"></div></div>
@@ -96,12 +147,12 @@ tr:hover td { background: var(--surface2); }
 
 <div class="preview" id="preview">
   <div class="preview-head">
-    Lignes écrites dans BAL_SIFAC
+    <span id="preview-title">Lignes écrites dans BAL_SIFAC</span>
     <span id="preview-count" style="background:var(--green-bg);color:var(--green);padding:2px 8px;border-radius:4px;font-size:11px"></span>
   </div>
   <div class="preview-scroll">
     <table>
-      <thead><tr><th>Mandant</th><th>Utilisateur</th><th>Profil</th><th>Périm.fin</th><th>CFI</th><th>Date</th><th>Heure</th><th>Modifié par</th><th>SAP_ALL</th></tr></thead>
+      <thead><tr><th>Mandant</th><th>Utilisateur</th><th>Profil</th><th>Périm.fin</th><th>CFI</th><th>Date</th><th>Heure</th><th>Modifié par</th><th>SAP_ALL</th><th>Statut</th></tr></thead>
       <tbody id="preview-body"></tbody>
     </table>
   </div>
@@ -122,12 +173,33 @@ if (typeof grist === 'undefined') {
 
 grist.ready({ requiredAccess: 'full' });
 
-var YP_RE = /^YP_\d{4}$/;
-var ROLES  = ['YC_ORDO_DELEGUE', 'YC_ORDO_GU'];
+var YP4_RE   = /^YP_\d{4}$/;          // Processus 1 : exactement 4 chiffres
+var YP_RE    = /^YP_/;                 // Processus 2 : tous YP_
+var TECH_RE  = /^YP_TECH_/;           // Processus 2 : exclusion YP_TECH_
+var ROLES1   = ['YC_ORDO_DELEGUE', 'YC_ORDO_GU'];
+var ROLES2   = ['YC_ORDO_DELEGUE', 'YC_ORDO_GU_SDAR'];
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(n) {
+  document.getElementById('proc1').classList.toggle('active', n === 1);
+  document.getElementById('proc2').classList.toggle('active', n === 2);
+  document.getElementById('tab1').className = 'tab' + (n===1 ? ' active-blue' : '');
+  document.getElementById('tab2').className = 'tab' + (n===2 ? ' active-purple' : '');
+  resetUI();
+}
+
+// ── UI HELPERS ────────────────────────────────────────────────────────────────
+function resetUI() {
+  document.getElementById('result').style.display  = 'none';
+  document.getElementById('preview').style.display = 'none';
+  document.getElementById('diag').style.display    = 'none';
+  document.getElementById('prog').style.display    = 'none';
+  document.getElementById('preview-body').innerHTML = '';
+}
 
 function setProgress(pct, lbl) {
-  document.getElementById('prog').style.display = 'block';
-  document.getElementById('prog-lbl').textContent = lbl;
+  document.getElementById('prog').style.display    = 'block';
+  document.getElementById('prog-lbl').textContent  = lbl;
   document.getElementById('prog-fill').style.width = pct + '%';
 }
 
@@ -136,177 +208,266 @@ function showResult(type, title, body) {
   el.className = 'result-box ' + type;
   el.style.display = 'block';
   document.getElementById('result-title').textContent = title;
-  document.getElementById('result-body').innerHTML = body;
-  document.getElementById('prog').style.display = 'none';
+  document.getElementById('result-body').innerHTML    = body;
+  document.getElementById('prog').style.display      = 'none';
 }
 
 function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-
 function fmtDate(d) {
-  var j = String(d.getDate()).padStart(2,'0');
-  var m = String(d.getMonth()+1).padStart(2,'0');
-  var y = d.getFullYear();
-  return j + '/' + m + '/' + y;
+  return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
 }
-
 function fmtTime(d) {
-  var h = String(d.getHours()).padStart(2,'0');
-  var m = String(d.getMinutes()).padStart(2,'0');
-  var s = String(d.getSeconds()).padStart(2,'0');
-  return h + ':' + m + ':' + s;
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');
 }
 
-async function lancer() {
+// ── LECTURE ZGDU ─────────────────────────────────────────────────────────────
+async function lireZGDU() {
+  var zgdu = await grist.docApi.fetchTable('ZGDU');
+  var nRows = zgdu['B'].length;
+  var roles = {}, perims = {};
+  for (var i = 0; i < nRows; i++) {
+    var nom  = String(zgdu['B'][i] || '').trim();
+    var role = String(zgdu['C'][i] || '').trim();
+    if (!nom || !role) continue;
+    if (!roles[nom]) { roles[nom] = {}; perims[nom] = {}; }
+    roles[nom][role] = true;
+  }
+  return { roles: roles, perims: perims, zgdu: zgdu, nRows: nRows };
+}
+
+// ── ÉCRITURE BAL_SIFAC + LOG ──────────────────────────────────────────────────
+async function ecrire(lignes) {
+  // lignes = [{nom, cfi, statut}]
+  var ts = new Date();
+  var date = fmtDate(ts), time = fmtTime(ts);
   var op = document.getElementById('op').value.trim();
-  if (!op) {
-    showResult('error', 'Opérateur manquant', 'Veuillez saisir votre identifiant avant de lancer l\'extraction.');
-    return;
+
+  var balA=[],balB=[],balC=[],balD2=[],balE2=[],balF2=[],balG2=[],balH2=[],balI=[];
+  var logH=[],logU=[],logP=[],logS=[],logC=[],logO=[];
+
+  for (var i = 0; i < lignes.length; i++) {
+    var l = lignes[i];
+    balA.push('510'); balB.push(l.nom); balC.push('GESTIONNAIRE');
+    balD2.push('5010'); balE2.push(l.cfi);
+    balF2.push(date); balG2.push(time);
+    balH2.push(op); balI.push('');
+    logH.push(date+' '+time); logU.push(l.nom);
+    logP.push(l.pCode); logS.push(l.statut);
+    logC.push(l.cfi); logO.push(op);
   }
 
-  document.getElementById('result').style.display  = 'none';
-  document.getElementById('preview').style.display = 'none';
-  document.getElementById('diag').style.display    = 'none';
-  document.getElementById('preview-body').innerHTML = '';
+  await grist.docApi.applyUserActions([['BulkAddRecord', 'BAL_SIFAC',
+    new Array(balA.length).fill(null), {
+      A:balA, B:balB, C:balC, D2:balD2, E2:balE2,
+      F2:balF2, G2:balG2, H2:balH2, I:balI
+    }
+  ]]);
 
   try {
-    // 1. Lire ZGDU
+    await grist.docApi.applyUserActions([['BulkAddRecord', 'Log',
+      new Array(logH.length).fill(null), {
+        Horodatage:logH, Utilisateur:logU, Perimetre:logP,
+        Source:logS, Code:logC, Operateur:logO
+      }
+    ]]);
+  } catch(e) {
+    await grist.docApi.applyUserActions([['AddTable','Log',[
+      {id:'Horodatage',type:'Text'},{id:'Utilisateur',type:'Text'},
+      {id:'Perimetre',type:'Text'},{id:'Source',type:'Text'},
+      {id:'Code',type:'Text'},{id:'Operateur',type:'Text'}
+    ]]]);
+    await grist.docApi.applyUserActions([['BulkAddRecord','Log',
+      new Array(logH.length).fill(null), {
+        Horodatage:logH, Utilisateur:logU, Perimetre:logP,
+        Source:logS, Code:logC, Operateur:logO
+      }
+    ]]);
+  }
+}
+
+function afficherPreview(lignes, titre) {
+  var tbody = document.getElementById('preview-body');
+  tbody.innerHTML = '';
+  var ts = new Date();
+  var date = fmtDate(ts), time = fmtTime(ts);
+  var op = document.getElementById('op').value.trim();
+  for (var i = 0; i < lignes.length; i++) {
+    var l = lignes[i];
+    var cls = l.cfi ? '' : ' class="not-found"';
+    tbody.innerHTML += '<tr><td>510</td><td>'+esc(l.nom)+'</td><td>GESTIONNAIRE</td><td>5010</td>' +
+      '<td'+cls+'>'+esc(l.cfi||'—')+'</td><td>'+date+'</td><td>'+time+'</td>' +
+      '<td>'+esc(op)+'</td><td></td><td>'+esc(l.statut)+'</td></tr>';
+  }
+  document.getElementById('preview-title').textContent = titre;
+  document.getElementById('preview-count').textContent = lignes.length + ' ligne' + (lignes.length>1?'s':'');
+  document.getElementById('preview').style.display = 'block';
+}
+
+// ── PROCESSUS 1 : YC_ORDO_DELEGUE + YC_ORDO_GU ───────────────────────────────
+async function lancerProc1() {
+  var op = document.getElementById('op').value.trim();
+  if (!op) { showResult('error','Opérateur manquant','Veuillez saisir votre identifiant.'); return; }
+  resetUI();
+
+  try {
     setProgress(10, 'Lecture de ZGDU…');
-    var zgdu = await grist.docApi.fetchTable('ZGDU');
-    var nRows = zgdu['B'].length;
+    var z = await lireZGDU();
 
-    // 2. Construire dictionnaires (B=nom, C=rôle)
-    setProgress(30, 'Analyse des rôles et périmètres…');
-    var roles  = {};
-    var perims = {};
-    for (var i = 0; i < nRows; i++) {
-      var nom  = String(zgdu['B'][i] || '').trim();
-      var role = String(zgdu['C'][i] || '').trim();
-      if (!nom || !role) continue;
-      if (!roles[nom])  { roles[nom] = {}; perims[nom] = {}; }
-      roles[nom][role] = true;
-      if (YP_RE.test(role)) perims[nom][role] = true;
-    }
-
-    // 3. Filtrer utilisateurs éligibles
-    setProgress(55, 'Filtrage des utilisateurs éligibles…');
-    var ts   = new Date();
-    var date = fmtDate(ts);
-    var time = fmtTime(ts);
-    var balA=[],balB=[],balC=[],balD2=[],balE2=[],balF2=[],balG2=[],balH2=[],balI=[];
-    var logH=[],logU=[],logP=[],logS=[],logC=[],logO=[];
-
-    for (var nom in roles) {
-      if (!ROLES.every(function(r){ return roles[nom][r]; })) continue;
-      for (var p in perims[nom]) {
-        var p4 = p.slice(3);
-        balA.push('510'); balB.push(nom); balC.push('GESTIONNAIRE');
-        balD2.push('5010'); balE2.push(p4);
-        balF2.push(date); balG2.push(time);
-        balH2.push(op); balI.push('');
-        logH.push(date+' '+time); logU.push(nom);
-        logP.push(p4); logS.push('Direct');
-        logC.push(p4); logO.push(op);
+    setProgress(35, 'Analyse des rôles et périmètres…');
+    var lignes = [];
+    for (var nom in z.roles) {
+      if (!ROLES1.every(function(r){ return z.roles[nom][r]; })) continue;
+      // Périmètres YP_#### uniquement
+      for (var i = 0; i < z.nRows; i++) {
+        if (String(z.zgdu['B'][i]||'').trim() !== nom) continue;
+        var role = String(z.zgdu['C'][i]||'').trim();
+        if (YP4_RE.test(role)) {
+          var p4 = role.slice(3);
+          lignes.push({ nom:nom, pCode:p4, cfi:p4, statut:'Direct' });
+        }
       }
     }
+    // Dédoublonner
+    var seen = {}, uniq = [];
+    for (var i = 0; i < lignes.length; i++) {
+      var k = lignes[i].nom + '|' + lignes[i].cfi;
+      if (!seen[k]) { seen[k]=true; uniq.push(lignes[i]); }
+    }
+    lignes = uniq;
 
-    if (!balA.length) {
-      showResult('warning', 'Aucune ligne à créer',
-        'Aucun utilisateur n\'a simultanément <code>YC_ORDO_DELEGUE</code> et <code>YC_ORDO_GU</code> avec un périmètre <code>YP_####</code>.');
+    if (!lignes.length) {
+      showResult('warning','Aucune ligne à créer','Aucun utilisateur éligible pour le processus 1.');
       return;
     }
 
-    // 4. Écrire BAL_SIFAC
-    setProgress(70, 'Écriture de ' + balA.length + ' lignes dans BAL_SIFAC…');
-    await grist.docApi.applyUserActions([['BulkAddRecord', 'BAL_SIFAC',
-      new Array(balA.length).fill(null), {
-        A: balA, B: balB, C: balC, D2: balD2, E2: balE2,
-        F2: balF2, G2: balG2, H2: balH2, I: balI
-      }
-    ]]);
+    setProgress(70, 'Écriture de ' + lignes.length + ' lignes…');
+    await ecrire(lignes);
 
-    // 5. Écrire Log
-    setProgress(88, 'Écriture dans Log…');
-    try {
-      await grist.docApi.applyUserActions([['BulkAddRecord', 'Log',
-        new Array(logH.length).fill(null), {
-          Horodatage: logH, Utilisateur: logU, Perimetre: logP,
-          Source: logS, Code: logC, Operateur: logO
-        }
-      ]]);
-    } catch(e) {
-      // Créer la table Log si absente
-      await grist.docApi.applyUserActions([['AddTable', 'Log', [
-        {id:'Horodatage',type:'Text'},{id:'Utilisateur',type:'Text'},
-        {id:'Perimetre',type:'Text'},{id:'Source',type:'Text'},
-        {id:'Code',type:'Text'},{id:'Operateur',type:'Text'}
-      ]]]);
-      await grist.docApi.applyUserActions([['BulkAddRecord', 'Log',
-        new Array(logH.length).fill(null), {
-          Horodatage: logH, Utilisateur: logU, Perimetre: logP,
-          Source: logS, Code: logC, Operateur: logO
-        }
-      ]]);
-    }
-
-    // 6. Résultat
     showResult('success',
-      'Extraction terminée — ' + balA.length + ' ligne' + (balA.length>1?'s':'') + ' créée' + (balA.length>1?'s':''),
-      'Opérateur : <code>' + esc(op) + '</code> · BAL_SIFAC et Log mis à jour.'
+      'Processus 1 terminé — ' + lignes.length + ' ligne' + (lignes.length>1?'s':'') + ' créée' + (lignes.length>1?'s':''),
+      'Rôles : <code>YC_ORDO_DELEGUE</code> + <code>YC_ORDO_GU</code> · Opérateur : <code>'+esc(op)+'</code>'
     );
-
-    var tbody = document.getElementById('preview-body');
-    for (var k = 0; k < balA.length; k++) {
-      tbody.innerHTML += '<tr><td>' + [balA[k],balB[k],balC[k],balD2[k],balE2[k],balF2[k],balG2[k],balH2[k],balI[k]].map(esc).join('</td><td>') + '</td></tr>';
-    }
-    document.getElementById('preview-count').textContent = balA.length + ' ligne' + (balA.length>1?'s':'');
-    document.getElementById('preview').style.display = 'block';
+    afficherPreview(lignes, 'Processus 1 — Lignes écrites dans BAL_SIFAC');
 
   } catch(e) {
-    showResult('error', 'Erreur', esc(e.message || String(e)));
+    showResult('error','Erreur processus 1', esc(e.message||String(e)));
   }
 }
 
+// ── PROCESSUS 2 : YC_ORDO_DELEGUE + YC_ORDO_GU_SDAR ─────────────────────────
+async function lancerProc2() {
+  var op = document.getElementById('op').value.trim();
+  if (!op) { showResult('error','Opérateur manquant','Veuillez saisir votre identifiant.'); return; }
+  resetUI();
+
+  try {
+    setProgress(10, 'Lecture de ZGDU…');
+    var z = await lireZGDU();
+
+    // Lecture table SDAR : ligne 1 = codes (valeurs de la 1ère ligne de données),
+    // ligne 2 = valeurs périmètres correspondantes
+    setProgress(25, 'Lecture de la table SDAR…');
+    var sdarMap = {};  // { code -> valeur }
+    try {
+      var sdar = await grist.docApi.fetchTable('SDAR');
+      var sCols = Object.keys(sdar).filter(function(k){ return k!=='id'&&k!=='manualSort'; });
+      // Ligne 0 = codes, ligne 1 = valeurs
+      for (var ci = 0; ci < sCols.length; ci++) {
+        var col = sCols[ci];
+        var code  = String(sdar[col][0]||'').trim();
+        var valeur = String(sdar[col][1]||'').trim();
+        if (code) sdarMap[code] = valeur;
+      }
+    } catch(e) {
+      showResult('error','Impossible de lire la table SDAR', esc(e.message));
+      return;
+    }
+
+    setProgress(45, 'Analyse des rôles et périmètres…');
+    var lignes = [];
+    for (var nom in z.roles) {
+      if (!ROLES2.every(function(r){ return z.roles[nom][r]; })) continue;
+      for (var i = 0; i < z.nRows; i++) {
+        if (String(z.zgdu['B'][i]||'').trim() !== nom) continue;
+        var role = String(z.zgdu['C'][i]||'').trim();
+        if (!YP_RE.test(role) || TECH_RE.test(role)) continue;
+
+        var pCode = role.slice(3);  // tout après "YP_"
+        var cfi, statut;
+
+        if (/^\d{4}$/.test(pCode)) {
+          // 4 chiffres → direct
+          cfi    = pCode;
+          statut = 'Direct';
+        } else {
+          // Recherche dans SDAR
+          if (sdarMap[pCode] !== undefined && sdarMap[pCode] !== '') {
+            cfi    = sdarMap[pCode];
+            statut = 'Trouvé SDAR';
+          } else {
+            cfi    = '';
+            statut = 'Non trouvé';
+          }
+        }
+        lignes.push({ nom:nom, pCode:pCode, cfi:cfi, statut:statut });
+      }
+    }
+    // Dédoublonner
+    var seen = {}, uniq = [];
+    for (var i = 0; i < lignes.length; i++) {
+      var k = lignes[i].nom + '|' + lignes[i].pCode;
+      if (!seen[k]) { seen[k]=true; uniq.push(lignes[i]); }
+    }
+    lignes = uniq;
+
+    if (!lignes.length) {
+      showResult('warning','Aucune ligne à créer','Aucun utilisateur éligible pour le processus 2.');
+      return;
+    }
+
+    setProgress(70, 'Écriture de ' + lignes.length + ' lignes…');
+    await ecrire(lignes);
+
+    var nonTrouves = lignes.filter(function(l){ return l.statut==='Non trouvé'; }).length;
+    var msg = 'Rôles : <code>YC_ORDO_DELEGUE</code> + <code>YC_ORDO_GU_SDAR</code> · Opérateur : <code>'+esc(op)+'</code>';
+    if (nonTrouves) msg += ' · <span style="color:var(--amber)">'+nonTrouves+' périmètre(s) non trouvé(s) dans SDAR</span>';
+
+    showResult('success',
+      'Processus 2 terminé — ' + lignes.length + ' ligne' + (lignes.length>1?'s':'') + ' créée' + (lignes.length>1?'s':''),
+      msg
+    );
+    afficherPreview(lignes, 'Processus 2 — Lignes écrites dans BAL_SIFAC');
+
+  } catch(e) {
+    showResult('error','Erreur processus 2', esc(e.message||String(e)));
+  }
+}
+
+// ── DIAGNOSTIC ────────────────────────────────────────────────────────────────
 async function diagnostic() {
   var box = document.getElementById('diag');
   box.style.display = 'block';
-  box.textContent = 'Chargement…';
-
-  // Diagnostic SDAR
-  try {
-    var s = await grist.docApi.fetchTable('SDAR');
-    var sc = Object.keys(s).filter(function(k){ return k!=='id'&&k!=='manualSort'; });
-    var nSDAR = sc.length ? s[sc[0]].length : 0;
-    var diagSDAR = '=== SDAR ===\nColonnes IDs : ' + sc.join(', ') + '\nLignes : ' + nSDAR + '\n';
-    // Affiche les 5 premières lignes
-    for (var i = 0; i < Math.min(5, nSDAR); i++) {
-      diagSDAR += 'L'+(i+1)+': ' + sc.map(function(c){ return c+'='+JSON.stringify(s[c][i]); }).join(' | ') + '\n';
-    }
-    document.getElementById('diag').textContent = diagSDAR;
-  } catch(e) { document.getElementById('diag').textContent = 'SDAR erreur : ' + e.message; }
-
-
+  box.textContent   = 'Chargement…';
   var out = '';
-  try {
-    var d = await grist.docApi.fetchTable('ZGDU');
-    var cols = Object.keys(d).filter(function(k){ return k!=='id'&&k!=='manualSort'; });
-    out += '=== ZGDU ===\nColonnes : ' + cols.join(', ') + '\nLignes : ' + d[cols[0]].length + '\n\n';
-  } catch(e) { out += 'ZGDU erreur : ' + e.message + '\n\n'; }
 
-  try {
-    var b = await grist.docApi.fetchTable('BAL_SIFAC');
-    var bc = Object.keys(b).filter(function(k){ return k!=='id'&&k!=='manualSort'; });
-    out += '=== BAL_SIFAC ===\nColonnes IDs : ' + bc.join(', ') + '\nLignes : ' + b[bc[0]].length + '\n';
-    out += 'Ligne 1 : ' + bc.map(function(c){ return c+'='+JSON.stringify(b[c][0]); }).join(', ') + '\n\n';
-  } catch(e) { out += 'BAL_SIFAC erreur : ' + e.message + '\n\n'; }
-
-  try {
-    var l = await grist.docApi.fetchTable('Log');
-    var lc = Object.keys(l).filter(function(k){ return k!=='id'&&k!=='manualSort'; });
-    out += '=== Log ===\nColonnes IDs : ' + lc.join(', ') + '\n';
-  } catch(e) { out += 'Log : absente ou erreur : ' + e.message + '\n'; }
-
+  var tables = ['ZGDU','BAL_SIFAC','Log','SDAR'];
+  for (var ti = 0; ti < tables.length; ti++) {
+    var t = tables[ti];
+    try {
+      var d    = await grist.docApi.fetchTable(t);
+      var cols = Object.keys(d).filter(function(k){ return k!=='id'&&k!=='manualSort'; });
+      var n    = cols.length ? d[cols[0]].length : 0;
+      out += '=== ' + t + ' ===\nColonnes : ' + cols.join(', ') + '\nLignes : ' + n + '\n';
+      for (var i = 0; i < Math.min(3, n); i++) {
+        out += 'L'+(i+1)+': ' + cols.map(function(c){ return c+'='+JSON.stringify(d[c][i]); }).join(' | ') + '\n';
+      }
+      out += '\n';
+    } catch(e) {
+      out += '=== ' + t + ' ===\nErreur : ' + e.message + '\n\n';
+    }
+  }
   box.textContent = out;
 }
 </script>
