@@ -270,26 +270,29 @@ async function ecrire(lignes) {
     }
   ]]);
 
-  try {
-    await grist.docApi.applyUserActions([['BulkAddRecord', 'Log',
-      new Array(logH.length).fill(null), {
-        Horodatage:logH, Utilisateur:logU, Perimetre:logP,
-        Source:logS, Code:logC, Operateur:logO
-      }
-    ]]);
-  } catch(e) {
+  // Écriture Log : on lit d'abord les vrais IDs de colonnes puis mapping positionnel
+  var logData = null;
+  try { logData = await grist.docApi.fetchTable('Log'); } catch(e) {}
+
+  if (!logData) {
+    // Table absente : on la crée avec les bons IDs
     await grist.docApi.applyUserActions([['AddTable','Log',[
       {id:'Horodatage',type:'Text'},{id:'Utilisateur',type:'Text'},
       {id:'Perimetre',type:'Text'},{id:'Source',type:'Text'},
       {id:'Code',type:'Text'},{id:'Operateur',type:'Text'}
     ]]]);
-    await grist.docApi.applyUserActions([['BulkAddRecord','Log',
-      new Array(logH.length).fill(null), {
-        Horodatage:logH, Utilisateur:logU, Perimetre:logP,
-        Source:logS, Code:logC, Operateur:logO
-      }
-    ]]);
+    logData = await grist.docApi.fetchTable('Log');
   }
+
+  var logCols = Object.keys(logData).filter(function(k){ return k!=='id'&&k!=='manualSort'; });
+  var logVals = [logH, logU, logP, logS, logC, logO];
+  var logPayload = {};
+  for (var li = 0; li < Math.min(logCols.length, logVals.length); li++) {
+    logPayload[logCols[li]] = logVals[li];
+  }
+  await grist.docApi.applyUserActions([['BulkAddRecord', 'Log',
+    new Array(logH.length).fill(null), logPayload
+  ]]);
 }
 
 function afficherPreview(lignes, titre) {
