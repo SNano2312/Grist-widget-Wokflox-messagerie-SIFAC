@@ -185,7 +185,12 @@ function switchTab(n) {
   document.getElementById('proc2').classList.toggle('active', n === 2);
   document.getElementById('tab1').className = 'tab' + (n===1 ? ' active-blue' : '');
   document.getElementById('tab2').className = 'tab' + (n===2 ? ' active-purple' : '');
-  resetUI();
+  // On réinitialise l'affichage mais PAS le champ opérateur
+  document.getElementById('result').style.display  = 'none';
+  document.getElementById('preview').style.display = 'none';
+  document.getElementById('diag').style.display    = 'none';
+  document.getElementById('prog').style.display    = 'none';
+  document.getElementById('preview-body').innerHTML = '';
 }
 
 // ── UI HELPERS ────────────────────────────────────────────────────────────────
