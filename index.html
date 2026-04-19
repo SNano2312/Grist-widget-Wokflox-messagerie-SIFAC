@@ -273,6 +273,20 @@ async function diagnostic() {
   box.style.display = 'block';
   box.textContent = 'Chargement…';
 
+  // Diagnostic SDAR
+  try {
+    var s = await grist.docApi.fetchTable('SDAR');
+    var sc = Object.keys(s).filter(function(k){ return k!=='id'&&k!=='manualSort'; });
+    var nSDAR = sc.length ? s[sc[0]].length : 0;
+    var diagSDAR = '=== SDAR ===\nColonnes IDs : ' + sc.join(', ') + '\nLignes : ' + nSDAR + '\n';
+    // Affiche les 5 premières lignes
+    for (var i = 0; i < Math.min(5, nSDAR); i++) {
+      diagSDAR += 'L'+(i+1)+': ' + sc.map(function(c){ return c+'='+JSON.stringify(s[c][i]); }).join(' | ') + '\n';
+    }
+    document.getElementById('diag').textContent = diagSDAR;
+  } catch(e) { document.getElementById('diag').textContent = 'SDAR erreur : ' + e.message; }
+
+
   var out = '';
   try {
     var d = await grist.docApi.fetchTable('ZGDU');
