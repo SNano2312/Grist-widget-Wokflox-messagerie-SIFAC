@@ -265,27 +265,12 @@ async function lancer() {
 
     // 5. Écrire Log
     setProgress(88, 'Écriture dans Log…');
-    try {
-      await grist.docApi.applyUserActions([['BulkAddRecord', 'Log',
-        new Array(logH.length).fill(null), {
-          Horodatage: logH, Utilisateur: logU, Perimetre: logP,
-          Source: logS, Code: logC, Operateur: logO
-        }
-      ]]);
-    } catch(e) {
-      // Créer la table Log si absente
-      await grist.docApi.applyUserActions([['AddTable', 'Log', [
-        {id:'Horodatage',type:'Text'},{id:'Utilisateur',type:'Text'},
-        {id:'Perimetre',type:'Text'},{id:'Source',type:'Text'},
-        {id:'Code',type:'Text'},{id:'Operateur',type:'Text'}
-      ]]]);
-      await grist.docApi.applyUserActions([['BulkAddRecord', 'Log',
-        new Array(logH.length).fill(null), {
-          Horodatage: logH, Utilisateur: logU, Perimetre: logP,
-          Source: logS, Code: logC, Operateur: logO
-        }
-      ]]);
-    }
+    await grist.docApi.applyUserActions([['BulkAddRecord', 'Log',
+      new Array(logH.length).fill(null), {
+        Horodatage: logH, Utilisateur: logU, Perimetre: logP,
+        Source: logS, Code: logC, Operateur: logO
+      }
+    ]]);
 
     // 6. Résultat
     showResult('success',
@@ -397,22 +382,10 @@ async function lancerProc2() {
       {A:bA,B:bB,C:bC,D2:bD2,E2:bE2,F2:bF2,G2:bG2,H2:bH2,I:bI}
     ]]);
     setProgress(88,"Ecriture Log...");
-    try {
-      await grist.docApi.applyUserActions([["BulkAddRecord","Log",
-        new Array(lH.length).fill(null),
-        {Horodatage:lH,Utilisateur:lU,Perimetre:lP,Source:lS,Code:lC,Operateur:lO}
-      ]]);
-    } catch(e2) {
-      await grist.docApi.applyUserActions([["AddTable","Log",[
-        {id:"Horodatage",type:"Text"},{id:"Utilisateur",type:"Text"},
-        {id:"Perimetre",type:"Text"},{id:"Source",type:"Text"},
-        {id:"Code",type:"Text"},{id:"Operateur",type:"Text"}
-      ]]]);
-      await grist.docApi.applyUserActions([["BulkAddRecord","Log",
-        new Array(lH.length).fill(null),
-        {Horodatage:lH,Utilisateur:lU,Perimetre:lP,Source:lS,Code:lC,Operateur:lO}
-      ]]);
-    }
+    await grist.docApi.applyUserActions([["BulkAddRecord","Log",
+      new Array(lH.length).fill(null),
+      {Horodatage:lH,Utilisateur:lU,Perimetre:lP,Source:lS,Code:lC,Operateur:lO}
+    ]]);
     var nt=lS.filter(function(s){return s==="Non trouve";}).length;
     var msg="Operateur : <code>"+esc(op)+"</code> - BAL_SIFAC et Log mis a jour.";
     if (nt) msg+=" - "+nt+" perimetre(s) non trouve(s) dans SDAR";
@@ -488,22 +461,10 @@ async function lancerProc3() {
       {A:bA,B:bB,C:bC,D2:bD2,E2:bE2,F2:bF2,G2:bG2,H2:bH2,I:bI}
     ]]);
     setProgress(88,"Ecriture Log...");
-    try {
-      await grist.docApi.applyUserActions([["BulkAddRecord","Log",
-        new Array(lH.length).fill(null),
-        {Horodatage:lH,Utilisateur:lU,Perimetre:lP,Source:lS,Code:lC,Operateur:lO}
-      ]]);
-    } catch(e2) {
-      await grist.docApi.applyUserActions([["AddTable","Log",[
-        {id:"Horodatage",type:"Text"},{id:"Utilisateur",type:"Text"},
-        {id:"Perimetre",type:"Text"},{id:"Source",type:"Text"},
-        {id:"Code",type:"Text"},{id:"Operateur",type:"Text"}
-      ]]]);
-      await grist.docApi.applyUserActions([["BulkAddRecord","Log",
-        new Array(lH.length).fill(null),
-        {Horodatage:lH,Utilisateur:lU,Perimetre:lP,Source:lS,Code:lC,Operateur:lO}
-      ]]);
-    }
+    await grist.docApi.applyUserActions([["BulkAddRecord","Log",
+      new Array(lH.length).fill(null),
+      {Horodatage:lH,Utilisateur:lU,Perimetre:lP,Source:lS,Code:lC,Operateur:lO}
+    ]]);
     var nt=lS.filter(function(s){return s==="Non trouve";}).length;
     var msg="Operateur : <code>"+esc(op)+"</code> - BAL_SIFAC et Log mis a jour.";
     if (nt) msg+=" - "+nt+" perimetre(s) non trouve(s) dans CF";
