@@ -72,6 +72,7 @@ tr:hover td { background: var(--surface2); }
 .tab{padding:7px 16px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);border-bottom:3px solid transparent;margin-bottom:-2px;}
 .tab.on1{color:var(--accent);border-bottom-color:var(--accent);}
 .tab.on2{color:#6D28D9;border-bottom-color:#6D28D9;}
+.tab.on3{color:#D97706;border-bottom-color:#D97706;}
 </style>
 </head>
 <body>
@@ -81,6 +82,7 @@ tr:hover td { background: var(--surface2); }
 <div class="tabs">
   <div class="tab on1" id="tab1" onclick="switchTab(1)">① ORDO_GU</div>
   <div class="tab" id="tab2" onclick="switchTab(2)">② ORDO_GU_SDAR</div>
+  <div class="tab" id="tab3" onclick="switchTab(3)">③ COMPTABLE_PEC</div>
 </div>
 <div id="proc1">
 
@@ -108,6 +110,17 @@ tr:hover td { background: var(--surface2); }
   <div class="row"><span class="lbl">Périm. financier</span><span class="badge">5010</span></div>
 </div>
 <button class="btn btn-p2" onclick="lancerProc2()">▶ Lancer le processus 2</button>
+</div>
+<div id="proc3" style="display:none">
+<div class="card">
+  <div class="card-title">Paramètres — Processus 3</div>
+  <div class="row"><span class="lbl">Rôle requis</span><span class="chip2" style="background:#FEF3C7;border-color:#FCD34D;color:#92400E">YC_COMPTABLE_PEC_DEPENSES</span></div>
+  <div class="row"><span class="lbl">Périmètres</span><span style="font-size:12px;color:var(--text2)">YP_* sauf INRAE/TECHNIQUE/TECH/CAR/RPC/MSL · lookup table CF</span></div>
+  <div class="row"><span class="lbl">Profil</span><span class="badge">FACTUREUR</span></div>
+  <div class="row"><span class="lbl">Mandant</span><span class="badge">510</span></div>
+  <div class="row"><span class="lbl">Périm. financier</span><span class="badge">5010</span></div>
+</div>
+<button class="btn" style="background:#D97706;color:#fff;" onclick="lancerProc3()">▶ Lancer le processus 3</button>
 </div>
 <button class="btn btn-ghost" onclick="diagnostic()">🔍 Diagnostiquer les tables</button>
 
@@ -323,8 +336,10 @@ async function diagnostic() {
 function switchTab(n) {
   document.getElementById("proc1").style.display = (n===1) ? "block" : "none";
   document.getElementById("proc2").style.display = (n===2) ? "block" : "none";
+  document.getElementById("proc3").style.display = (n===3) ? "block" : "none";
   document.getElementById("tab1").className = "tab" + (n===1 ? " on1" : "");
   document.getElementById("tab2").className = "tab" + (n===2 ? " on2" : "");
+  document.getElementById("tab3").className = "tab" + (n===3 ? " on3" : "");
   document.getElementById("result").style.display  = "none";
   document.getElementById("preview").style.display = "none";
   document.getElementById("diag").style.display    = "none";
@@ -408,6 +423,97 @@ async function lancerProc2() {
     document.getElementById("preview-count").textContent=bA.length+" ligne"+(bA.length>1?"s":"");
     document.getElementById("preview").style.display="block";
   } catch(e) { showResult("error","Erreur processus 2",esc(e.message||String(e))); }
+}
+
+async function lancerProc3() {
+  var op = document.getElementById("op").value.trim();
+  if (!op) { showResult("error","Operateur manquant","Saisissez votre identifiant dans l'onglet 1."); return; }
+  document.getElementById("result").style.display  = "none";
+  document.getElementById("preview").style.display = "none";
+  document.getElementById("diag").style.display    = "none";
+  document.getElementById("preview-body").innerHTML = "";
+  try {
+    setProgress(10,"Lecture ZGDU...");
+    var zgdu = await grist.docApi.fetchTable("ZGDU");
+    var nR = zgdu["B"].length, r3={}, p3={};
+    setProgress(20,"Analyse roles...");
+    for (var i=0; i<nR; i++) {
+      var nom=String(zgdu["B"][i]||"").trim(), role=String(zgdu["C"][i]||"").trim();
+      if (!nom||!role) continue;
+      if (!r3[nom]) { r3[nom]={}; p3[nom]={}; }
+      r3[nom][role]=true;
+      if (/^YP_/.test(role) &&
+          !/^YP_INRAE/i.test(role) &&
+          !/^YP_TECHNIQUE/i.test(role) &&
+          !/^YP_TECH_/i.test(role) &&
+          !/^YP_.*[-_]CAR/i.test(role) &&
+          !/^YP_CAR/i.test(role) &&
+          !/^YP_.*-RPC$/i.test(role) &&
+          !/^YP_MSL$/i.test(role)
+      ) { p3[nom][role]=true; }
+    }
+    setProgress(35,"Lecture table CF...");
+    var cf = await grist.docApi.fetchTable("Centre_financier");
+    var cfCols = Object.keys(cf).filter(function(k){return k!=="id"&&k!=="manualSort";});
+    // col index 0 = Centre financier (valeur), index 3 = Centre financier superieur (code recherche)
+    var cfColA = cfCols[0], cfColD = cfCols[3];
+    setProgress(55,"Filtrage...");
+    var ts=new Date(), date=fmtDate(ts), time=fmtTime(ts);
+    var bA=[],bB=[],bC=[],bD2=[],bE2=[],bF2=[],bG2=[],bH2=[],bI=[];
+    var lH=[],lU=[],lP=[],lS=[],lC=[],lO=[];
+    for (var nom in r3) {
+      if (!r3[nom]["YC_COMPTABLE_PEC_DEPENSES"]) continue;
+      for (var p in p3[nom]) {
+        var pc = p.slice(3);
+        var found = false;
+        // Chercher toutes les occurrences de pc dans colonne cfColD
+        for (var ri=0; ri<cf[cfColD].length; ri++) {
+          if (String(cf[cfColD][ri]||"").trim() === pc) {
+            var cfi = String(cf[cfColA][ri]||"").trim();
+            bA.push("510"); bB.push(nom); bC.push("FACTUREUR");
+            bD2.push("5010"); bE2.push(cfi); bF2.push(date); bG2.push(time); bH2.push(op); bI.push("");
+            lH.push(date+" "+time); lU.push(nom); lP.push("CF"); lS.push("Trouve"); lC.push(pc); lO.push(op);
+            found = true;
+          }
+        }
+        if (!found) {
+          lH.push(date+" "+time); lU.push(nom); lP.push("CF"); lS.push("Non trouve"); lC.push(pc); lO.push(op);
+        }
+      }
+    }
+    if (!bA.length) { showResult("warning","Aucune ligne","Aucun utilisateur eligible processus 3."); return; }
+    setProgress(70,"Ecriture BAL_SIFAC...");
+    await grist.docApi.applyUserActions([["BulkAddRecord","BAL_SIFAC",
+      new Array(bA.length).fill(null),
+      {A:bA,B:bB,C:bC,D2:bD2,E2:bE2,F2:bF2,G2:bG2,H2:bH2,I:bI}
+    ]]);
+    setProgress(88,"Ecriture Log...");
+    try {
+      await grist.docApi.applyUserActions([["BulkAddRecord","Log",
+        new Array(lH.length).fill(null),
+        {Horodatage:lH,Utilisateur:lU,Perimetre:lP,Source:lS,Code:lC,Operateur:lO}
+      ]]);
+    } catch(e2) {
+      await grist.docApi.applyUserActions([["AddTable","Log",[
+        {id:"Horodatage",type:"Text"},{id:"Utilisateur",type:"Text"},
+        {id:"Perimetre",type:"Text"},{id:"Source",type:"Text"},
+        {id:"Code",type:"Text"},{id:"Operateur",type:"Text"}
+      ]]]);
+      await grist.docApi.applyUserActions([["BulkAddRecord","Log",
+        new Array(lH.length).fill(null),
+        {Horodatage:lH,Utilisateur:lU,Perimetre:lP,Source:lS,Code:lC,Operateur:lO}
+      ]]);
+    }
+    var nt=lS.filter(function(s){return s==="Non trouve";}).length;
+    var msg="Operateur : <code>"+esc(op)+"</code> - BAL_SIFAC et Log mis a jour.";
+    if (nt) msg+=" - "+nt+" perimetre(s) non trouve(s) dans CF";
+    showResult("success","Processus 3 - "+bA.length+" ligne"+(bA.length>1?"s":"")+" creee"+(bA.length>1?"s":""),msg);
+    var tb=document.getElementById("preview-body");
+    for (var k=0;k<bA.length;k++)
+      tb.innerHTML+="<tr><td>"+[bA[k],bB[k],bC[k],bD2[k],bE2[k],bF2[k],bG2[k],bH2[k],bI[k]].map(esc).join("</td><td>")+"</td></tr>";
+    document.getElementById("preview-count").textContent=bA.length+" ligne"+(bA.length>1?"s":"");
+    document.getElementById("preview").style.display="block";
+  } catch(e) { showResult("error","Erreur processus 3",esc(e.message||String(e))); }
 }
 </script>
 </body>
